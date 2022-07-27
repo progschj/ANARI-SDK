@@ -1,0 +1,2975 @@
+= ANARI Reference
+:toc: left
+:toclevels: 3
+
+== Types
+=== `ANARIDataType`
+[cols="1,1"]
+|===
+|Name |Type
+
+|`ANARI_UNKNOWN`
+|`int`
+|`ANARI_DATA_TYPE`
+|`int32_t`
+|`ANARI_STRING`
+|`const char*`
+|`ANARI_VOID_POINTER`
+|`void*`
+|`ANARI_BOOL`
+|`int32_t`
+|`ANARI_STRING_LIST`
+|`const char**`
+|`ANARI_TYPE_LIST`
+|`ANARIDataType*`
+|`ANARI_PARAMETER_LIST`
+|`ANARIParameter*`
+|`ANARI_FUNCTION_POINTER`
+|`void(*)(void)`
+|`ANARI_MEMORY_DELETER`
+|`ANARIMemoryDeleter`
+|`ANARI_STATUS_CALLBACK`
+|`ANARIStatusCallback`
+|`ANARI_LIBRARY`
+|`ANARILibrary`
+|`ANARI_DEVICE`
+|`ANARIDevice`
+|`ANARI_OBJECT`
+|`ANARIObject`
+|`ANARI_ARRAY`
+|`ANARIArray`
+|`ANARI_ARRAY1D`
+|`ANARIArray1D`
+|`ANARI_ARRAY2D`
+|`ANARIArray2D`
+|`ANARI_ARRAY3D`
+|`ANARIArray3D`
+|`ANARI_CAMERA`
+|`ANARICamera`
+|`ANARI_FRAME`
+|`ANARIFrame`
+|`ANARI_GEOMETRY`
+|`ANARIGeometry`
+|`ANARI_GROUP`
+|`ANARIGroup`
+|`ANARI_INSTANCE`
+|`ANARIInstance`
+|`ANARI_LIGHT`
+|`ANARILight`
+|`ANARI_MATERIAL`
+|`ANARIMaterial`
+|`ANARI_RENDERER`
+|`ANARIRenderer`
+|`ANARI_SURFACE`
+|`ANARISurface`
+|`ANARI_SAMPLER`
+|`ANARISampler`
+|`ANARI_SPATIAL_FIELD`
+|`ANARISpatialField`
+|`ANARI_VOLUME`
+|`ANARIVolume`
+|`ANARI_WORLD`
+|`ANARIWorld`
+|`ANARI_INT8`
+|`int8_t`
+|`ANARI_INT8_VEC2`
+|`int8_t[2]`
+|`ANARI_INT8_VEC3`
+|`int8_t[3]`
+|`ANARI_INT8_VEC4`
+|`int8_t[4]`
+|`ANARI_UINT8`
+|`uint8_t`
+|`ANARI_UINT8_VEC2`
+|`uint8_t[2]`
+|`ANARI_UINT8_VEC3`
+|`uint8_t[3]`
+|`ANARI_UINT8_VEC4`
+|`uint8_t[4]`
+|`ANARI_INT16`
+|`int16_t`
+|`ANARI_INT16_VEC2`
+|`int16_t[2]`
+|`ANARI_INT16_VEC3`
+|`int16_t[3]`
+|`ANARI_INT16_VEC4`
+|`int16_t[4]`
+|`ANARI_UINT16`
+|`uint16_t`
+|`ANARI_UINT16_VEC2`
+|`uint16_t[2]`
+|`ANARI_UINT16_VEC3`
+|`uint16_t[3]`
+|`ANARI_UINT16_VEC4`
+|`uint16_t[4]`
+|`ANARI_INT32`
+|`int32_t`
+|`ANARI_INT32_VEC2`
+|`int32_t[2]`
+|`ANARI_INT32_VEC3`
+|`int32_t[3]`
+|`ANARI_INT32_VEC4`
+|`int32_t[4]`
+|`ANARI_UINT32`
+|`uint32_t`
+|`ANARI_UINT32_VEC2`
+|`uint32_t[2]`
+|`ANARI_UINT32_VEC3`
+|`uint32_t[3]`
+|`ANARI_UINT32_VEC4`
+|`uint32_t[4]`
+|`ANARI_INT64`
+|`int64_t`
+|`ANARI_INT64_VEC2`
+|`int64_t[2]`
+|`ANARI_INT64_VEC3`
+|`int64_t[3]`
+|`ANARI_INT64_VEC4`
+|`int64_t[4]`
+|`ANARI_UINT64`
+|`uint64_t`
+|`ANARI_UINT64_VEC2`
+|`uint64_t[2]`
+|`ANARI_UINT64_VEC3`
+|`uint64_t[3]`
+|`ANARI_UINT64_VEC4`
+|`uint64_t[4]`
+|`ANARI_FIXED8`
+|`int8_t`
+|`ANARI_FIXED8_VEC2`
+|`int8_t[2]`
+|`ANARI_FIXED8_VEC3`
+|`int8_t[3]`
+|`ANARI_FIXED8_VEC4`
+|`int8_t[4]`
+|`ANARI_UFIXED8`
+|`uint8_t`
+|`ANARI_UFIXED8_VEC2`
+|`uint8_t[2]`
+|`ANARI_UFIXED8_VEC3`
+|`uint8_t[3]`
+|`ANARI_UFIXED8_VEC4`
+|`uint8_t[4]`
+|`ANARI_FIXED16`
+|`int16_t`
+|`ANARI_FIXED16_VEC2`
+|`int16_t[2]`
+|`ANARI_FIXED16_VEC3`
+|`int16_t[3]`
+|`ANARI_FIXED16_VEC4`
+|`int16_t[4]`
+|`ANARI_UFIXED16`
+|`uint16_t`
+|`ANARI_UFIXED16_VEC2`
+|`uint16_t[2]`
+|`ANARI_UFIXED16_VEC3`
+|`uint16_t[3]`
+|`ANARI_UFIXED16_VEC4`
+|`uint16_t[4]`
+|`ANARI_FIXED32`
+|`int32_t`
+|`ANARI_FIXED32_VEC2`
+|`int32_t[2]`
+|`ANARI_FIXED32_VEC3`
+|`int32_t[3]`
+|`ANARI_FIXED32_VEC4`
+|`int32_t[4]`
+|`ANARI_UFIXED32`
+|`uint32_t`
+|`ANARI_UFIXED32_VEC2`
+|`uint32_t[2]`
+|`ANARI_UFIXED32_VEC3`
+|`uint32_t[3]`
+|`ANARI_UFIXED32_VEC4`
+|`uint32_t[4]`
+|`ANARI_FIXED64`
+|`int64_t`
+|`ANARI_FIXED64_VEC2`
+|`int64_t[2]`
+|`ANARI_FIXED64_VEC3`
+|`int64_t[3]`
+|`ANARI_FIXED64_VEC4`
+|`int64_t[4]`
+|`ANARI_UFIXED64`
+|`uint64_t`
+|`ANARI_UFIXED64_VEC2`
+|`uint64_t[2]`
+|`ANARI_UFIXED64_VEC3`
+|`uint64_t[3]`
+|`ANARI_UFIXED64_VEC4`
+|`uint64_t[4]`
+|`ANARI_FLOAT16`
+|`uint16_t`
+|`ANARI_FLOAT16_VEC2`
+|`uint16_t[2]`
+|`ANARI_FLOAT16_VEC3`
+|`uint16_t[3]`
+|`ANARI_FLOAT16_VEC4`
+|`uint16_t[4]`
+|`ANARI_FLOAT32`
+|`float`
+|`ANARI_FLOAT32_VEC2`
+|`float[2]`
+|`ANARI_FLOAT32_VEC3`
+|`float[3]`
+|`ANARI_FLOAT32_VEC4`
+|`float[4]`
+|`ANARI_FLOAT64`
+|`double`
+|`ANARI_FLOAT64_VEC2`
+|`double[2]`
+|`ANARI_FLOAT64_VEC3`
+|`double[3]`
+|`ANARI_FLOAT64_VEC4`
+|`double[4]`
+|`ANARI_UFIXED8_RGBA_SRGB`
+|`uint8_t[4]`
+|`ANARI_UFIXED8_RGB_SRGB`
+|`uint8_t[3]`
+|`ANARI_UFIXED8_RA_SRGB`
+|`uint8_t[2]`
+|`ANARI_UFIXED8_R_SRGB`
+|`uint8_t`
+|`ANARI_INT32_BOX1`
+|`int32_t[2]`
+|`ANARI_INT32_BOX2`
+|`int32_t[4]`
+|`ANARI_INT32_BOX3`
+|`int32_t[6]`
+|`ANARI_INT32_BOX4`
+|`int32_t[8]`
+|`ANARI_FLOAT32_BOX1`
+|`float[2]`
+|`ANARI_FLOAT32_BOX2`
+|`float[4]`
+|`ANARI_FLOAT32_BOX3`
+|`float[6]`
+|`ANARI_FLOAT32_BOX4`
+|`float[8]`
+|`ANARI_UINT64_REGION1`
+|`uint64_t[2]`
+|`ANARI_UINT64_REGION2`
+|`uint64_t[4]`
+|`ANARI_UINT64_REGION3`
+|`uint64_t[6]`
+|`ANARI_UINT64_REGION4`
+|`uint64_t[8]`
+|`ANARI_FLOAT32_MAT2`
+|`float[4]`
+|`ANARI_FLOAT32_MAT3`
+|`float[9]`
+|`ANARI_FLOAT32_MAT4`
+|`float[16]`
+|`ANARI_FLOAT32_MAT2x3`
+|`float[6]`
+|`ANARI_FLOAT32_MAT3x4`
+|`float[12]`
+|`ANARI_FLOAT32_QUAT_IJKW`
+|`float[4]`
+|`ANARI_FRAME_COMPLETION_CALLBACK`
+|`ANARIFrameCompletionCallback`
+|===
+=== `ANARILogLevel`
+[cols="1"]
+|===
+|Name
+
+|`ANARI_LOG_DEBUG`
+|`ANARI_LOG_INFO`
+|`ANARI_LOG_WARNING`
+|`ANARI_LOG_ERROR`
+|`ANARI_LOG_NONE`
+|===
+=== `ANARIWaitMask`
+[cols="1"]
+|===
+|Name
+
+|`ANARI_NO_WAIT`
+|`ANARI_WAIT`
+|===
+=== `ANARIStatusCode`
+[cols="1"]
+|===
+|Name
+
+|`ANARI_STATUS_NO_ERROR`
+|`ANARI_STATUS_UNKNOWN_ERROR`
+|`ANARI_STATUS_INVALID_ARGUMENT`
+|`ANARI_STATUS_INVALID_OPERATION`
+|`ANARI_STATUS_OUT_OF_MEMORY`
+|`ANARI_STATUS_UNSUPPORTED_DEVICE`
+|`ANARI_STATUS_VERSION_MISMATCH`
+|===
+=== `ANARIStatusSeverity`
+[cols="1"]
+|===
+|Name
+
+|`ANARI_SEVERITY_FATAL_ERROR`
+|`ANARI_SEVERITY_ERROR`
+|`ANARI_SEVERITY_WARNING`
+|`ANARI_SEVERITY_PERFORMANCE_WARNING`
+|`ANARI_SEVERITY_INFO`
+|`ANARI_SEVERITY_DEBUG`
+|===
+=== `ANARIObject`
+Opaque Object handle
+
+=== `ANARILibrary`
+Opaque Library handle
+
+=== `ANARIDevice`
+Opaque Device handle
+
+=== `ANARICamera`
+Opaque Camera handle
+
+=== `ANARIArray`
+Opaque Array handle
+
+=== `ANARIArray1D`
+Opaque Array1D handle
+
+=== `ANARIArray2D`
+Opaque Array2D handle
+
+=== `ANARIArray3D`
+Opaque Array3D handle
+
+=== `ANARIFrame`
+Opaque Frame handle
+
+=== `ANARIFuture`
+Opaque Future handle
+
+=== `ANARIGeometry`
+Opaque Geometry handle
+
+=== `ANARIGroup`
+Opaque Group handle
+
+=== `ANARIInstance`
+Opaque Instance handle
+
+=== `ANARILight`
+Opaque Light handle
+
+=== `ANARIMaterial`
+Opaque Material handle
+
+=== `ANARISampler`
+Opaque Sampler handle
+
+=== `ANARISurface`
+Opaque Surface handle
+
+=== `ANARIRenderer`
+Opaque Renderer handle
+
+=== `ANARISpatialField`
+Opaque SpatialField handle
+
+=== `ANARIVolume`
+Opaque Volume handle
+
+=== `ANARIWorld`
+Opaque World handle
+
+=== `ANARIParameter`
+[source,cpp]
+----
+struct ANARIParameter {
+   const char* name;
+   ANARIDataType type;
+};
+----
+=== `ANARIMemoryDeleter`
+[source,cpp]
+----
+typedef void (*ANARIMemoryDeleter) (
+   const void* userPtr,
+   const void* appMemory);
+----
+=== `ANARIStatusCallback`
+[source,cpp]
+----
+typedef void (*ANARIStatusCallback) (
+   const void* userPtr,
+   ANARIDevice device,
+   ANARIObject source,
+   ANARIDataType sourceType,
+   ANARIStatusSeverity severity,
+   ANARIStatusCode code,
+   const char* message);
+----
+=== `ANARIFrameCompletionCallback`
+[source,cpp]
+----
+typedef void (*ANARIFrameCompletionCallback) (
+   const void* userPtr,
+   ANARIDevice device,
+   ANARIFrame frame);
+----
+== Functions
+=== `anariLoadLibrary`
+[source,cpp]
+----
+ANARILibrary anariLoadLibrary(
+   const char* name,
+   ANARIStatusCallback statusCallback,
+   const void* statusCallbackUserData);
+----
+=== `anariUnloadLibrary`
+[source,cpp]
+----
+void anariUnloadLibrary(
+   ANARILibrary module);
+----
+=== `anariLoadModule`
+[source,cpp]
+----
+void anariLoadModule(
+   ANARILibrary library,
+   const char* name);
+----
+=== `anariUnloadModule`
+[source,cpp]
+----
+void anariUnloadModule(
+   ANARILibrary library,
+   const char* name);
+----
+=== `anariNewDevice`
+[source,cpp]
+----
+ANARIDevice anariNewDevice(
+   ANARILibrary library,
+   const char* type);
+----
+=== `anariNewArray1D`
+[source,cpp]
+----
+ANARIArray1D anariNewArray1D(
+   ANARIDevice device,
+   const void* appMemory,
+   ANARIMemoryDeleter deleter,
+   const void* userData,
+   ANARIDataType dataType,
+   uint64_t numItems1,
+   uint64_t byteStride1);
+----
+=== `anariNewArray2D`
+[source,cpp]
+----
+ANARIArray2D anariNewArray2D(
+   ANARIDevice device,
+   const void* appMemory,
+   ANARIMemoryDeleter deleter,
+   const void* userData,
+   ANARIDataType dataType,
+   uint64_t numItems1,
+   uint64_t numItems2,
+   uint64_t byteStride1,
+   uint64_t byteStride2);
+----
+=== `anariNewArray3D`
+[source,cpp]
+----
+ANARIArray3D anariNewArray3D(
+   ANARIDevice device,
+   const void* appMemory,
+   ANARIMemoryDeleter deleter,
+   const void* userData,
+   ANARIDataType dataType,
+   uint64_t numItems1,
+   uint64_t numItems2,
+   uint64_t numItems3,
+   uint64_t byteStride1,
+   uint64_t byteStride2,
+   uint64_t byteStride3);
+----
+=== `anariMapArray`
+[source,cpp]
+----
+void* anariMapArray(
+   ANARIDevice device,
+   ANARIArray array);
+----
+=== `anariUnmapArray`
+[source,cpp]
+----
+void anariUnmapArray(
+   ANARIDevice device,
+   ANARIArray array);
+----
+=== `anariNewLight`
+[source,cpp]
+----
+ANARILight anariNewLight(
+   ANARIDevice device,
+   const char* type);
+----
+=== `anariNewCamera`
+[source,cpp]
+----
+ANARICamera anariNewCamera(
+   ANARIDevice device,
+   const char* type);
+----
+=== `anariNewGeometry`
+[source,cpp]
+----
+ANARIGeometry anariNewGeometry(
+   ANARIDevice device,
+   const char* type);
+----
+=== `anariNewSpatialField`
+[source,cpp]
+----
+ANARISpatialField anariNewSpatialField(
+   ANARIDevice device,
+   const char* type);
+----
+=== `anariNewVolume`
+[source,cpp]
+----
+ANARIVolume anariNewVolume(
+   ANARIDevice device,
+   const char* type);
+----
+=== `anariNewSurface`
+[source,cpp]
+----
+ANARISurface anariNewSurface(
+   ANARIDevice device);
+----
+=== `anariNewMaterial`
+[source,cpp]
+----
+ANARIMaterial anariNewMaterial(
+   ANARIDevice device,
+   const char* type);
+----
+=== `anariNewSampler`
+[source,cpp]
+----
+ANARISampler anariNewSampler(
+   ANARIDevice device,
+   const char* type);
+----
+=== `anariNewGroup`
+[source,cpp]
+----
+ANARIGroup anariNewGroup(
+   ANARIDevice device);
+----
+=== `anariNewInstance`
+[source,cpp]
+----
+ANARIInstance anariNewInstance(
+   ANARIDevice device);
+----
+=== `anariNewWorld`
+[source,cpp]
+----
+ANARIWorld anariNewWorld(
+   ANARIDevice device);
+----
+=== `anariNewObject`
+[source,cpp]
+----
+ANARIObject anariNewObject(
+   ANARIDevice device,
+   const char* objectType,
+   const char* type);
+----
+=== `anariSetParameter`
+[source,cpp]
+----
+void anariSetParameter(
+   ANARIDevice device,
+   ANARIObject object,
+   const char* name,
+   ANARIDataType dataType,
+   const void* mem);
+----
+=== `anariUnsetParameter`
+[source,cpp]
+----
+void anariUnsetParameter(
+   ANARIDevice device,
+   ANARIObject object,
+   const char* name);
+----
+=== `anariCommitParameters`
+[source,cpp]
+----
+void anariCommitParameters(
+   ANARIDevice device,
+   ANARIObject object);
+----
+=== `anariRelease`
+[source,cpp]
+----
+void anariRelease(
+   ANARIDevice device,
+   ANARIObject object);
+----
+=== `anariRetain`
+[source,cpp]
+----
+void anariRetain(
+   ANARIDevice device,
+   ANARIObject object);
+----
+=== `anariGetDeviceSubtypes`
+[source,cpp]
+----
+const char ** anariGetDeviceSubtypes(
+   ANARILibrary library);
+----
+=== `anariGetObjectSubtypes`
+[source,cpp]
+----
+const char ** anariGetObjectSubtypes(
+   ANARILibrary library,
+   const char* deviceSubtype,
+   ANARIDataType objectType);
+----
+=== `anariGetObjectInfo`
+[source,cpp]
+----
+const void* anariGetObjectInfo(
+   ANARILibrary library,
+   const char* deviceSubtype,
+   const char* objectSubtype,
+   ANARIDataType objectType,
+   const char* infoName,
+   ANARIDataType infoType);
+----
+=== `anariGetParameterInfo`
+[source,cpp]
+----
+const void* anariGetParameterInfo(
+   ANARILibrary library,
+   const char* deviceSubtype,
+   const char* objectSubtype,
+   ANARIDataType objectType,
+   const char* parameterName,
+   ANARIDataType parameterType,
+   const char* infoName,
+   ANARIDataType infoType);
+----
+=== `anariGetProperty`
+[source,cpp]
+----
+int anariGetProperty(
+   ANARIDevice device,
+   ANARIObject object,
+   const char* name,
+   ANARIDataType type,
+   void* mem,
+   uint64_t size,
+   ANARIWaitMask mask);
+----
+=== `anariNewFrame`
+[source,cpp]
+----
+ANARIFrame anariNewFrame(
+   ANARIDevice device);
+----
+=== `anariMapFrame`
+[source,cpp]
+----
+const void* anariMapFrame(
+   ANARIDevice device,
+   ANARIFrame frame,
+   const char* channel,
+   uint32_t* width,
+   uint32_t* height,
+   ANARIDataType* pixelType);
+----
+=== `anariUnmapFrame`
+[source,cpp]
+----
+void anariUnmapFrame(
+   ANARIDevice device,
+   ANARIFrame frame,
+   const char* channel);
+----
+=== `anariNewRenderer`
+[source,cpp]
+----
+ANARIRenderer anariNewRenderer(
+   ANARIDevice device,
+   const char* type);
+----
+=== `anariRenderFrame`
+[source,cpp]
+----
+void anariRenderFrame(
+   ANARIDevice device,
+   ANARIFrame frame);
+----
+=== `anariFrameReady`
+[source,cpp]
+----
+int anariFrameReady(
+   ANARIDevice device,
+   ANARIFrame frame,
+   ANARIWaitMask mask);
+----
+=== `anariDiscardFrame`
+[source,cpp]
+----
+void anariDiscardFrame(
+   ANARIDevice device,
+   ANARIFrame frame);
+----
+== Objects
+=== `ANARI_ARRAY1D`
+Feature: `CORE_OBJECTS`
+
+Description: one dimensional array object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`CORE_OBJECTS`
+|`region`
+|`ANARI_UINT64_REGION1`
+|
+
+|active region of the array
+|`KHR_ARRAY1D_REGION`
+|===
+
+=== `ANARI_ARRAY2D`
+Feature: `CORE_OBJECTS`
+
+Description: two dimensional array object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`CORE_OBJECTS`
+|===
+
+=== `ANARI_ARRAY3D`
+Feature: `CORE_OBJECTS`
+
+Description: three dimensional array object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`CORE_OBJECTS`
+|===
+
+=== `ANARI_CAMERA`
+==== omnidirectional
+Feature: `KHR_CAMERA_OMNIDIRECTIONAL`
+
+Description: omnidirectional camera object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_CAMERA_OMNIDIRECTIONAL`
+|`position`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 0.0, 0.0]
+
+|camera position
+|`KHR_CAMERA_OMNIDIRECTIONAL`
+|`direction`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 0.0, -1.0]
+
+|main viewing direction
+|`KHR_CAMERA_OMNIDIRECTIONAL`
+|`up`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 1.0, 0.0]
+
+|camera up direction
+|`KHR_CAMERA_OMNIDIRECTIONAL`
+|`transform`
+|`ANARI_FLOAT32_MAT3x4`
+|
+default = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+
+|camera transform
+|`KHR_CAMERA_OMNIDIRECTIONAL`
+|`imageRegion`
+|`ANARI_FLOAT32_BOX2`
+|
+default = [0.0, 0.0, 1.0, 1.0]
+
+|region mapped to the frame
+|`KHR_CAMERA_OMNIDIRECTIONAL`
+|`apertureRadius`
+|`ANARI_FLOAT32`
+|
+default = 0
+
+|aperture radius
+|`KHR_CAMERA_OMNIDIRECTIONAL`
+|`focusDistance`
+|`ANARI_FLOAT32`
+|
+default = 1
+
+|focus distance
+|`KHR_CAMERA_OMNIDIRECTIONAL`
+|`stereoMode`
+|`ANARI_STRING`
+|
+default = none
+
+|stereo mode
+|`KHR_CAMERA_OMNIDIRECTIONAL`
+|`interpupillaryDistance`
+|`ANARI_FLOAT32`
+|
+default = 0.0635
+
+|interpupillary distance for stereo rendering
+|`KHR_CAMERA_OMNIDIRECTIONAL`
+|`layout`
+|`ANARI_STRING`
+|
+default = equirectangular
+
+|pixel layout
+|`KHR_CAMERA_OMNIDIRECTIONAL`
+|`motion.transform`
+|`ANARI_ARRAY1D`
+|
+
+|transforms uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`motion.scale`
+|`ANARI_ARRAY1D`
+|
+
+|scale vectors uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`motion.rotation`
+|`ANARI_ARRAY1D`
+|
+
+|rotation quaternions uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`motion.translation`
+|`ANARI_ARRAY1D`
+|
+
+|translation vectors uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`time`
+|`ANARI_FLOAT32_BOX1`
+|
+default = [0.0, 1.0]
+
+|time interval associated with first and last key in motion arrays
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`shutter`
+|`ANARI_FLOAT32_BOX1`
+|
+default = [0.5, 0.5]
+
+|start and end of shutter time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|===
+
+==== orthographic
+Feature: `KHR_CAMERA_ORTHOGRAPHIC`
+
+Description: orthographic camera object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_CAMERA_ORTHOGRAPHIC`
+|`position`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 0.0, 0.0]
+
+|camera position
+|`KHR_CAMERA_ORTHOGRAPHIC`
+|`direction`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 0.0, -1.0]
+
+|main viewing direction
+|`KHR_CAMERA_ORTHOGRAPHIC`
+|`up`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 1.0, 0.0]
+
+|camera up direction
+|`KHR_CAMERA_ORTHOGRAPHIC`
+|`transform`
+|`ANARI_FLOAT32_MAT3x4`
+|
+default = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+
+|camera transform
+|`KHR_CAMERA_ORTHOGRAPHIC`
+|`imageRegion`
+|`ANARI_FLOAT32_BOX2`
+|
+default = [0.0, 0.0, 1.0, 1.0]
+
+|region mapped to the frame
+|`KHR_CAMERA_ORTHOGRAPHIC`
+|`apertureRadius`
+|`ANARI_FLOAT32`
+|
+default = 0
+
+|aperture radius
+|`KHR_CAMERA_ORTHOGRAPHIC`
+|`focusDistance`
+|`ANARI_FLOAT32`
+|
+default = 1
+
+|focus distance
+|`KHR_CAMERA_ORTHOGRAPHIC`
+|`stereoMode`
+|`ANARI_STRING`
+|
+default = none
+
+|stereo mode
+|`KHR_CAMERA_ORTHOGRAPHIC`
+|`interpupillaryDistance`
+|`ANARI_FLOAT32`
+|
+default = 0.0635
+
+|interpupillary distance for stereo rendering
+|`KHR_CAMERA_ORTHOGRAPHIC`
+|`aspect`
+|`ANARI_FLOAT32`
+|
+default = 1.0
+
+|aspect ratio
+|`KHR_CAMERA_ORTHOGRAPHIC`
+|`motion.transform`
+|`ANARI_ARRAY1D`
+|
+
+|transforms uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`motion.scale`
+|`ANARI_ARRAY1D`
+|
+
+|scale vectors uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`motion.rotation`
+|`ANARI_ARRAY1D`
+|
+
+|rotation quaternions uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`motion.translation`
+|`ANARI_ARRAY1D`
+|
+
+|translation vectors uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`time`
+|`ANARI_FLOAT32_BOX1`
+|
+default = [0.0, 1.0]
+
+|time interval associated with first and last key in motion arrays
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`shutter`
+|`ANARI_FLOAT32_BOX1`
+|
+default = [0.5, 0.5]
+
+|start and end of shutter time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|===
+
+==== perspective
+Feature: `KHR_CAMERA_PERSPECTIVE`
+
+Description: perspective camera object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_CAMERA_PERSPECTIVE`
+|`position`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 0.0, 0.0]
+
+|camera position
+|`KHR_CAMERA_PERSPECTIVE`
+|`direction`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 0.0, -1.0]
+
+|main viewing direction
+|`KHR_CAMERA_PERSPECTIVE`
+|`up`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 1.0, 0.0]
+
+|camera up direction
+|`KHR_CAMERA_PERSPECTIVE`
+|`transform`
+|`ANARI_FLOAT32_MAT3x4`
+|
+default = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+
+|camera transform
+|`KHR_CAMERA_PERSPECTIVE`
+|`imageRegion`
+|`ANARI_FLOAT32_BOX2`
+|
+default = [0.0, 0.0, 1.0, 1.0]
+
+|region mapped to the frame
+|`KHR_CAMERA_PERSPECTIVE`
+|`apertureRadius`
+|`ANARI_FLOAT32`
+|
+default = 0
+
+|aperture radius
+|`KHR_CAMERA_PERSPECTIVE`
+|`focusDistance`
+|`ANARI_FLOAT32`
+|
+default = 1
+
+|focus distance
+|`KHR_CAMERA_PERSPECTIVE`
+|`stereoMode`
+|`ANARI_STRING`
+|
+default = none
+
+|stereo mode
+|`KHR_CAMERA_PERSPECTIVE`
+|`interpupillaryDistance`
+|`ANARI_FLOAT32`
+|
+default = 0.0635
+
+|interpupillary distance for stereo rendering
+|`KHR_CAMERA_PERSPECTIVE`
+|`fovy`
+|`ANARI_FLOAT32`
+|
+default = 1.0471975512
+
+|vertical field of view in radians
+|`KHR_CAMERA_PERSPECTIVE`
+|`aspect`
+|`ANARI_FLOAT32`
+|
+default = 1.0
+
+|aspect ratio
+|`KHR_CAMERA_PERSPECTIVE`
+|`motion.transform`
+|`ANARI_ARRAY1D`
+|
+
+|transforms uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`motion.scale`
+|`ANARI_ARRAY1D`
+|
+
+|scale vectors uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`motion.rotation`
+|`ANARI_ARRAY1D`
+|
+
+|rotation quaternions uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`motion.translation`
+|`ANARI_ARRAY1D`
+|
+
+|translation vectors uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`time`
+|`ANARI_FLOAT32_BOX1`
+|
+default = [0.0, 1.0]
+
+|time interval associated with first and last key in motion arrays
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`shutter`
+|`ANARI_FLOAT32_BOX1`
+|
+default = [0.5, 0.5]
+
+|start and end of shutter time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|===
+
+=== `ANARI_DEVICE`
+Feature: `CORE_OBJECTS`
+
+Description: device object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`CORE_OBJECTS`
+|`statusCallback`
+|`ANARI_STATUS_CALLBACK`
+|
+
+|callback used to report information to the application
+|`CORE_OBJECTS`
+|`statusCallbackUserData`
+|`ANARI_VOID_POINTER`
+|
+
+|optional pointer passed as the first argument of the status callback
+|`CORE_OBJECTS`
+|===
+
+=== `ANARI_FRAME`
+Feature: `CORE_OBJECTS`
+
+Description: frame object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`CORE_OBJECTS`
+|`world`
+|`ANARI_WORLD`
+|
+required
+
+|world to be rendererd
+|`CORE_OBJECTS`
+|`renderer`
+|`ANARI_RENDERER`
+|
+required
+
+|renderer which renders the frame
+|`CORE_OBJECTS`
+|`camera`
+|`ANARI_CAMERA`
+|
+required
+
+|camera used to render the world
+|`CORE_OBJECTS`
+|`size`
+|`ANARI_UINT32_VEC2`
+|
+required
+
+|size of the frame in pixels (width, height)
+|`CORE_OBJECTS`
+|`color`
+|`ANARI_DATA_TYPE`
+|
+
+|enables mapping the color channel as the type specified
+|`CORE_OBJECTS`
+|`depth`
+|`ANARI_DATA_TYPE`
+|
+
+|enables mapping the color channel as the type specified
+|`CORE_OBJECTS`
+|`frameCompletionCallback`
+|`ANARI_FRAME_COMPLETION_CALLBACK`
+|
+
+|function called on frame render completion
+|`KHR_FRAME_CONTINUATION`
+|`frameCompletionCallbackUserData`
+|`ANARI_VOID_POINTER`
+|
+
+|optional pointer passed as the first argument of the frame continuation callback
+|`KHR_FRAME_CONTINUATION`
+|`normal`
+|`ANARI_DATA_TYPE`
+|
+
+|enables mapping the normal channel as the type specified
+|`KHR_AUXILIARY_BUFFERS`
+|`albedo`
+|`ANARI_DATA_TYPE`
+|
+
+|enables mapping the albedo channel as the type specified
+|`KHR_AUXILIARY_BUFFERS`
+|`accumulation`
+|`ANARI_BOOL`
+|
+default = 0
+
+|enables accumulation over multiple render calls
+|`KHR_STOCHASTIC_RENDERING`
+|`variance`
+|`ANARI_BOOL`
+|
+default = 0
+
+|enables calculation of the variance property
+|`KHR_STOCHASTIC_RENDERING`
+|===
+
+=== `ANARI_GEOMETRY`
+==== cone
+Feature: `KHR_GEOMETRY_CONE`
+
+Description: cone geometry object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_GEOMETRY_CONE`
+|`primitive.color`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive color
+|`KHR_GEOMETRY_CONE`
+|`primitive.attribute0`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute0
+|`KHR_GEOMETRY_CONE`
+|`primitive.attribute1`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute1
+|`KHR_GEOMETRY_CONE`
+|`primitive.attribute2`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute2
+|`KHR_GEOMETRY_CONE`
+|`primitive.attribute3`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute3
+|`KHR_GEOMETRY_CONE`
+|`primitive.id`
+|`ANARI_ARRAY1D`
+|
+
+|primitive id
+|`KHR_GEOMETRY_CONE`
+|`vertex.position`
+|`ANARI_ARRAY1D`
+|
+required
+
+|vertex position
+|`KHR_GEOMETRY_CONE`
+|`vertex.radius`
+|`ANARI_ARRAY1D`
+|
+
+|vertex radius
+|`KHR_GEOMETRY_CONE`
+|`vertex.cap`
+|`ANARI_ARRAY1D`
+|
+
+|vertex cap type
+|`KHR_GEOMETRY_CONE`
+|`vertex.color`
+|`ANARI_ARRAY1D`
+|
+
+|vertex color
+|`KHR_GEOMETRY_CONE`
+|`vertex.attribute0`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute0
+|`KHR_GEOMETRY_CONE`
+|`vertex.attribute1`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute1
+|`KHR_GEOMETRY_CONE`
+|`vertex.attribute2`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute2
+|`KHR_GEOMETRY_CONE`
+|`vertex.attribute3`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute3
+|`KHR_GEOMETRY_CONE`
+|`primitive.index`
+|`ANARI_ARRAY1D`
+|
+
+|index array
+|`KHR_GEOMETRY_CONE`
+|`caps`
+|`ANARI_STRING`
+|
+default = none
+
+|global cap type
+|`KHR_GEOMETRY_CONE`
+|===
+
+==== curve
+Feature: `KHR_GEOMETRY_CURVE`
+
+Description: curve geometry object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_GEOMETRY_CURVE`
+|`primitive.color`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive color
+|`KHR_GEOMETRY_CURVE`
+|`primitive.attribute0`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute0
+|`KHR_GEOMETRY_CURVE`
+|`primitive.attribute1`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute1
+|`KHR_GEOMETRY_CURVE`
+|`primitive.attribute2`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute2
+|`KHR_GEOMETRY_CURVE`
+|`primitive.attribute3`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute3
+|`KHR_GEOMETRY_CURVE`
+|`primitive.id`
+|`ANARI_ARRAY1D`
+|
+
+|primitive id
+|`KHR_GEOMETRY_CURVE`
+|`vertex.position`
+|`ANARI_ARRAY1D`
+|
+required
+
+|vertex position
+|`KHR_GEOMETRY_CURVE`
+|`vertex.radius`
+|`ANARI_ARRAY1D`
+|
+
+|vertex radius
+|`KHR_GEOMETRY_CURVE`
+|`vertex.color`
+|`ANARI_ARRAY1D`
+|
+
+|vertex color
+|`KHR_GEOMETRY_CURVE`
+|`vertex.attribute0`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute0
+|`KHR_GEOMETRY_CURVE`
+|`vertex.attribute1`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute1
+|`KHR_GEOMETRY_CURVE`
+|`vertex.attribute2`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute2
+|`KHR_GEOMETRY_CURVE`
+|`vertex.attribute3`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute3
+|`KHR_GEOMETRY_CURVE`
+|`primitive.index`
+|`ANARI_ARRAY1D`
+|
+
+|index array
+|`KHR_GEOMETRY_CURVE`
+|`radius`
+|`ANARI_FLOAT32`
+|
+
+|global radius
+|`KHR_GEOMETRY_CURVE`
+|===
+
+==== cylinder
+Feature: `KHR_GEOMETRY_CYLINDER`
+
+Description: cylinder geometry object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_GEOMETRY_CYLINDER`
+|`primitive.color`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive color
+|`KHR_GEOMETRY_CYLINDER`
+|`primitive.attribute0`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute0
+|`KHR_GEOMETRY_CYLINDER`
+|`primitive.attribute1`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute1
+|`KHR_GEOMETRY_CYLINDER`
+|`primitive.attribute2`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute2
+|`KHR_GEOMETRY_CYLINDER`
+|`primitive.attribute3`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute3
+|`KHR_GEOMETRY_CYLINDER`
+|`primitive.id`
+|`ANARI_ARRAY1D`
+|
+
+|primitive id
+|`KHR_GEOMETRY_CYLINDER`
+|`vertex.position`
+|`ANARI_ARRAY1D`
+|
+required
+
+|vertex position
+|`KHR_GEOMETRY_CYLINDER`
+|`vertex.cap`
+|`ANARI_ARRAY1D`
+|
+
+|cylinder cap type
+|`KHR_GEOMETRY_CYLINDER`
+|`vertex.color`
+|`ANARI_ARRAY1D`
+|
+
+|vertex color
+|`KHR_GEOMETRY_CYLINDER`
+|`vertex.attribute0`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute0
+|`KHR_GEOMETRY_CYLINDER`
+|`vertex.attribute1`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute1
+|`KHR_GEOMETRY_CYLINDER`
+|`vertex.attribute2`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute2
+|`KHR_GEOMETRY_CYLINDER`
+|`vertex.attribute3`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute3
+|`KHR_GEOMETRY_CYLINDER`
+|`primitive.index`
+|`ANARI_ARRAY1D`
+|
+
+|index array
+|`KHR_GEOMETRY_CYLINDER`
+|`primitive.radius`
+|`ANARI_ARRAY1D`
+|
+
+|cylinder radius
+|`KHR_GEOMETRY_CYLINDER`
+|`radius`
+|`ANARI_FLOAT32`
+|
+
+|global cylinder radius
+|`KHR_GEOMETRY_CYLINDER`
+|`caps`
+|`ANARI_STRING`
+|
+default = none
+
+|global cylinder cap type
+|`KHR_GEOMETRY_CYLINDER`
+|===
+
+==== quad
+Feature: `KHR_GEOMETRY_QUAD`
+
+Description: quad geometry object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_GEOMETRY_QUAD`
+|`primitive.color`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive color
+|`KHR_GEOMETRY_QUAD`
+|`primitive.attribute0`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute0
+|`KHR_GEOMETRY_QUAD`
+|`primitive.attribute1`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute1
+|`KHR_GEOMETRY_QUAD`
+|`primitive.attribute2`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute2
+|`KHR_GEOMETRY_QUAD`
+|`primitive.attribute3`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute3
+|`KHR_GEOMETRY_QUAD`
+|`primitive.id`
+|`ANARI_ARRAY1D`
+|
+
+|primitive id
+|`KHR_GEOMETRY_QUAD`
+|`vertex.position`
+|`ANARI_ARRAY1D`
+|
+required
+
+|vertex position
+|`KHR_GEOMETRY_QUAD`
+|`vertex.normal`
+|`ANARI_ARRAY1D`
+|
+
+|vertex normal
+|`KHR_GEOMETRY_QUAD`
+|`vertex.color`
+|`ANARI_ARRAY1D`
+|
+
+|vertex color
+|`KHR_GEOMETRY_QUAD`
+|`vertex.attribute0`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute0
+|`KHR_GEOMETRY_QUAD`
+|`vertex.attribute1`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute1
+|`KHR_GEOMETRY_QUAD`
+|`vertex.attribute2`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute2
+|`KHR_GEOMETRY_QUAD`
+|`vertex.attribute3`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute3
+|`KHR_GEOMETRY_QUAD`
+|`primitive.index`
+|`ANARI_ARRAY1D`
+|
+
+|index array
+|`KHR_GEOMETRY_QUAD`
+|===
+
+==== sphere
+Feature: `KHR_GEOMETRY_SPHERE`
+
+Description: sphere geometry object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_GEOMETRY_SPHERE`
+|`primitive.color`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive color
+|`KHR_GEOMETRY_SPHERE`
+|`primitive.attribute0`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute0
+|`KHR_GEOMETRY_SPHERE`
+|`primitive.attribute1`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute1
+|`KHR_GEOMETRY_SPHERE`
+|`primitive.attribute2`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute2
+|`KHR_GEOMETRY_SPHERE`
+|`primitive.attribute3`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute3
+|`KHR_GEOMETRY_SPHERE`
+|`primitive.id`
+|`ANARI_ARRAY1D`
+|
+
+|primitive id
+|`KHR_GEOMETRY_SPHERE`
+|`vertex.position`
+|`ANARI_ARRAY1D`
+|
+required
+
+|sphere position
+|`KHR_GEOMETRY_SPHERE`
+|`vertex.radius`
+|`ANARI_ARRAY1D`
+|
+
+|sphere radius
+|`KHR_GEOMETRY_SPHERE`
+|`vertex.color`
+|`ANARI_ARRAY1D`
+|
+
+|vertex color
+|`KHR_GEOMETRY_SPHERE`
+|`vertex.attribute0`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute0
+|`KHR_GEOMETRY_SPHERE`
+|`vertex.attribute1`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute1
+|`KHR_GEOMETRY_SPHERE`
+|`vertex.attribute2`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute2
+|`KHR_GEOMETRY_SPHERE`
+|`vertex.attribute3`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute3
+|`KHR_GEOMETRY_SPHERE`
+|`primitive.index`
+|`ANARI_ARRAY1D`
+|
+
+|index array
+|`KHR_GEOMETRY_SPHERE`
+|`radius`
+|`ANARI_FLOAT32`
+|
+
+|global sphere radius
+|`KHR_GEOMETRY_SPHERE`
+|===
+
+==== triangle
+Feature: `KHR_GEOMETRY_TRIANGLE`
+
+Description: triangle geometry object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_GEOMETRY_TRIANGLE`
+|`primitive.color`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive color
+|`KHR_GEOMETRY_TRIANGLE`
+|`primitive.attribute0`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute0
+|`KHR_GEOMETRY_TRIANGLE`
+|`primitive.attribute1`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute1
+|`KHR_GEOMETRY_TRIANGLE`
+|`primitive.attribute2`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute2
+|`KHR_GEOMETRY_TRIANGLE`
+|`primitive.attribute3`
+|`ANARI_ARRAY1D`
+|
+
+|per primitive attribute3
+|`KHR_GEOMETRY_TRIANGLE`
+|`primitive.id`
+|`ANARI_ARRAY1D`
+|
+
+|primitive id
+|`KHR_GEOMETRY_TRIANGLE`
+|`vertex.position`
+|`ANARI_ARRAY1D`
+|
+required
+
+|vertex position
+|`KHR_GEOMETRY_TRIANGLE`
+|`vertex.normal`
+|`ANARI_ARRAY1D`
+|
+
+|vertex normal
+|`KHR_GEOMETRY_TRIANGLE`
+|`vertex.color`
+|`ANARI_ARRAY1D`
+|
+
+|vertex color
+|`KHR_GEOMETRY_TRIANGLE`
+|`vertex.attribute0`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute0
+|`KHR_GEOMETRY_TRIANGLE`
+|`vertex.attribute1`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute1
+|`KHR_GEOMETRY_TRIANGLE`
+|`vertex.attribute2`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute2
+|`KHR_GEOMETRY_TRIANGLE`
+|`vertex.attribute3`
+|`ANARI_ARRAY1D`
+|
+
+|vertex attribute3
+|`KHR_GEOMETRY_TRIANGLE`
+|`primitive.index`
+|`ANARI_ARRAY1D`
+|
+
+|index array
+|`KHR_GEOMETRY_TRIANGLE`
+|===
+
+=== `ANARI_GROUP`
+Feature: `CORE_OBJECTS`
+
+Description: group object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`CORE_OBJECTS`
+|`surface`
+|`ANARI_ARRAY1D`
+|
+
+|array of surface objects
+|`CORE_OBJECTS`
+|`volume`
+|`ANARI_ARRAY1D`
+|
+
+|array of volume objects
+|`CORE_OBJECTS`
+|`light`
+|`ANARI_ARRAY1D`
+|
+
+|array of light objects
+|`CORE_OBJECTS`
+|===
+
+=== `ANARI_INSTANCE`
+Feature: `CORE_OBJECTS`
+
+Description: instance object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`CORE_OBJECTS`
+|`transform`
+|`ANARI_FLOAT32_MAT4`
+|
+default = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+
+|transform applied to objects in the instance
+|`CORE_OBJECTS`
+|`group`
+|`ANARI_GROUP`
+|
+required
+
+|group object being instanced
+|`CORE_OBJECTS`
+|`motion.transform`
+|`ANARI_ARRAY1D`
+|
+
+|transforms uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`motion.scale`
+|`ANARI_ARRAY1D`
+|
+
+|scale vectors uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`motion.rotation`
+|`ANARI_ARRAY1D`
+|
+
+|rotation quaternions uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`motion.translation`
+|`ANARI_ARRAY1D`
+|
+
+|translation vectors uniformly spaced in time
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|`time`
+|`ANARI_FLOAT32_BOX1`
+|
+default = [0.0, 1.0]
+
+|time interval associated with first and last key in motion arrays
+|`KHR_TRANSFORMATION_MOTION_BLUR`
+|===
+
+=== `ANARI_LIGHT`
+==== directional
+Feature: `KHR_LIGHT_DIRECTIONAL`
+
+Description: directional light object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_LIGHT_DIRECTIONAL`
+|`color`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [1.0, 1.0, 1.0]
+
+|color of the light
+|`KHR_LIGHT_DIRECTIONAL`
+|`irradiance`
+|`ANARI_FLOAT32`
+|
+default = 1.0
+
+|amount of light in W/m^2
+|`KHR_LIGHT_DIRECTIONAL`
+|`direction`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 0.0, 1.0]
+
+|emission direction of the light
+|`KHR_LIGHT_DIRECTIONAL`
+|`angularDiameter`
+|`ANARI_FLOAT32`
+|
+default = 0.0
+
+|apparent size of the light in radians
+|`KHR_AREA_LIGHTS`
+|`radiance`
+|`ANARI_FLOAT32`
+|
+default = 1.0
+
+|the amount of light emitted by a point on the light source in a direction in W/sr/m^2
+|`KHR_AREA_LIGHTS`
+|`visible`
+|`ANARI_BOOL`
+|
+default = 1
+
+|visibility of the light geometry
+|`KHR_AREA_LIGHTS`
+|===
+
+==== point
+Feature: `KHR_LIGHT_POINT`
+
+Description: point light object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_LIGHT_POINT`
+|`color`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [1.0, 1.0, 1.0]
+
+|color of the light
+|`KHR_LIGHT_POINT`
+|`position`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 0.0, 0.0]
+
+|position of the light source
+|`KHR_LIGHT_POINT`
+|`intensity`
+|`ANARI_FLOAT32`
+|
+default = 1.0
+
+|overall amount of light emitted in a direction in W/sr
+|`KHR_LIGHT_POINT`
+|`power`
+|`ANARI_FLOAT32`
+|
+default = 1.0
+
+|overall amount of light energy emitted in W
+|`KHR_LIGHT_POINT`
+|`radius`
+|`ANARI_FLOAT32`
+|
+default = 0.0
+
+|radius of the sphere light
+|`KHR_AREA_LIGHTS`
+|`radiance`
+|`ANARI_FLOAT32`
+|
+default = 1.0
+
+|the amount of light emitted by a point on the light source in a direction in W/sr/m^2
+|`KHR_AREA_LIGHTS`
+|`visible`
+|`ANARI_BOOL`
+|
+default = 1
+
+|visibility of the light geometry
+|`KHR_AREA_LIGHTS`
+|===
+
+==== spot
+Feature: `KHR_LIGHT_SPOT`
+
+Description: spot light object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_LIGHT_SPOT`
+|`color`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [1.0, 1.0, 1.0]
+
+|color of the light
+|`KHR_LIGHT_SPOT`
+|`position`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 0.0, 0.0]
+
+|position of the light source
+|`KHR_LIGHT_SPOT`
+|`direction`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 0.0, -1.0]
+
+|the axis of the spot
+|`KHR_LIGHT_SPOT`
+|`openingAngle`
+|`ANARI_FLOAT32`
+|
+default = 3.14159265359
+
+|opening angle in radians
+|`KHR_LIGHT_SPOT`
+|`falloffAngle`
+|`ANARI_FLOAT32`
+|
+default = 0.1
+
+|falloff angle in radians
+|`KHR_LIGHT_SPOT`
+|`intensity`
+|`ANARI_FLOAT32`
+|
+default = 1.0
+
+|overall amount of light emitted in a direction in W/sr
+|`KHR_LIGHT_SPOT`
+|`power`
+|`ANARI_FLOAT32`
+|
+default = 1.0
+
+|overall amount of light energy emitted in W
+|`KHR_LIGHT_SPOT`
+|===
+
+==== ring
+Feature: `KHR_LIGHT_RING`
+
+Description: ring light object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_LIGHT_RING`
+|`color`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [1.0, 1.0, 1.0]
+
+|color of the light
+|`KHR_LIGHT_RING`
+|`position`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 0.0, 0.0]
+
+|position of the light source
+|`KHR_LIGHT_RING`
+|`direction`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 0.0, -1.0]
+
+|the axis the ring is pointing at
+|`KHR_LIGHT_RING`
+|`openingAngle`
+|`ANARI_FLOAT32`
+|
+default = 3.14159265359
+
+|opening angle in radians
+|`KHR_LIGHT_RING`
+|`falloffAngle`
+|`ANARI_FLOAT32`
+|
+default = 0.1
+
+|falloff angle in radians
+|`KHR_LIGHT_RING`
+|`intensity`
+|`ANARI_FLOAT32`
+|
+default = 1.0
+
+|overall amount of light emitted in a direction in W/sr
+|`KHR_LIGHT_RING`
+|`power`
+|`ANARI_FLOAT32`
+|
+default = 1.0
+
+|overall amount of light energy emitted in W
+|`KHR_LIGHT_RING`
+|`radius`
+|`ANARI_FLOAT32`
+|
+default = 0.0
+
+|outer radius of the ring
+|`KHR_LIGHT_RING`
+|`innerRadius`
+|`ANARI_FLOAT32`
+|
+default = 0.0
+
+|inner radius of the ring
+|`KHR_LIGHT_RING`
+|`radiance`
+|`ANARI_FLOAT32`
+|
+default = 1.0
+
+|the amount of light emitted by a point on the light source in a direction in W/sr/m^2
+|`KHR_LIGHT_RING`
+|`intensityDistribution`
+|`ANARI_ARRAY1D, ANARI_ARRAY2D`
+|
+
+|luminous intensity distribution for photometric lights
+|`KHR_LIGHT_RING`
+|`c0`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [1.0, 0.0, 0.0]
+
+|direction of the C0-(half)plane
+|`KHR_LIGHT_RING`
+|`visible`
+|`ANARI_BOOL`
+|
+default = 1
+
+|visibility of the light geometry
+|`KHR_LIGHT_RING`
+|===
+
+==== quad
+Feature: `KHR_LIGHT_QUAD`
+
+Description: quad light object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_LIGHT_QUAD`
+|`color`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [1.0, 1.0, 1.0]
+
+|color of the light
+|`KHR_LIGHT_QUAD`
+|`position`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 0.0, 0.0]
+
+|position of the light source
+|`KHR_LIGHT_QUAD`
+|`edge1`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [1.0, 0.0, 0.0]
+
+|vector of the first edge
+|`KHR_LIGHT_QUAD`
+|`edge2`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 1.0, 0.0]
+
+|vector of the second edge
+|`KHR_LIGHT_QUAD`
+|`intensity`
+|`ANARI_FLOAT32`
+|
+default = 1.0
+
+|overall amount of light emitted in a direction in W/sr
+|`KHR_LIGHT_QUAD`
+|`power`
+|`ANARI_FLOAT32`
+|
+default = 1.0
+
+|overall amount of light energy emitted in W
+|`KHR_LIGHT_QUAD`
+|`radiance`
+|`ANARI_FLOAT32`
+|
+default = 1.0
+
+|the amount of light emitted by a point on the light source in a direction in W/sr/m^2
+|`KHR_LIGHT_QUAD`
+|`side`
+|`ANARI_STRING`
+|
+default = front
+
+|light emitting sides of the quad
+|`KHR_LIGHT_QUAD`
+|`intensityDistribution`
+|`ANARI_ARRAY1D, ANARI_ARRAY2D`
+|
+
+|luminous intensity distribution for photometric lights
+|`KHR_LIGHT_QUAD`
+|`visible`
+|`ANARI_BOOL`
+|
+default = 1
+
+|visibility of the light geometry
+|`KHR_LIGHT_QUAD`
+|===
+
+==== hdri
+Feature: `KHR_LIGHT_HDRI`
+
+Description: hdri light object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_LIGHT_HDRI`
+|`color`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [1.0, 1.0, 1.0]
+
+|color of the light
+|`KHR_LIGHT_HDRI`
+|`up`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 0.0, 1.0]
+
+|up direction of the light in world space
+|`KHR_LIGHT_HDRI`
+|`radiance`
+|`ANARI_ARRAY2D`
+|
+
+|the amount of light emitted by a point on the light source in a direction in W/sr/m^2
+|`KHR_LIGHT_HDRI`
+|`layout`
+|`ANARI_STRING`
+|
+default = equirectangular
+
+|radiance image layout
+|`KHR_LIGHT_HDRI`
+|`scale`
+|`ANARI_FLOAT32`
+|
+default = 1
+
+|scale factor for radiance
+|`KHR_LIGHT_HDRI`
+|`visible`
+|`ANARI_BOOL`
+|
+default = 1
+
+|visibility of the light geometry
+|`KHR_LIGHT_HDRI`
+|===
+
+=== `ANARI_MATERIAL`
+==== matte
+Feature: `KHR_MATERIAL_MATTE`
+
+Description: matte material object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_MATERIAL_MATTE`
+|`color`
+|`ANARI_FLOAT32_VEC3, ANARI_SAMPLER, ANARI_STRING`
+|
+default = [0.8, 0.8, 0.8]
+
+|diffuse color
+|`KHR_MATERIAL_MATTE`
+|===
+
+==== transparentMatte
+Feature: `KHR_MATERIAL_TRANSPARENT_MATTE`
+
+Description: transparent matte material object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_MATERIAL_TRANSPARENT_MATTE`
+|`color`
+|`ANARI_FLOAT32_VEC3, ANARI_SAMPLER, ANARI_STRING`
+|
+default = [0.8, 0.8, 0.8]
+
+|diffuse color
+|`KHR_MATERIAL_TRANSPARENT_MATTE`
+|`opacity`
+|`ANARI_FLOAT32, ANARI_SAMPLER, ANARI_STRING`
+|
+default = 1.0
+
+|opacity
+|`KHR_MATERIAL_TRANSPARENT_MATTE`
+|===
+
+=== `ANARI_RENDERER`
+==== default
+Feature: `CORE_OBJECTS`
+
+Description: default renderer
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`CORE_OBJECTS`
+|===
+
+=== `ANARI_SAMPLER`
+==== image1D
+Feature: `KHR_SAMPLER_IMAGE1D`
+
+Description: image1D object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_SAMPLER_IMAGE1D`
+|`image`
+|`ANARI_ARRAY1D`
+|
+required
+
+|array backing the sampler
+|`KHR_SAMPLER_IMAGE1D`
+|`inAttribute`
+|`ANARI_STRING`
+|
+default = attribute0
+
+|input surface attribute (texture coordinate)
+|`KHR_SAMPLER_IMAGE1D`
+|`filter`
+|`ANARI_STRING`
+|
+default = nearest
+
+|filter mode
+|`KHR_SAMPLER_IMAGE1D`
+|`wrapMode1`
+|`ANARI_STRING`
+|
+default = clampToEdge
+
+|wrap mode for the 1st dimension
+|`KHR_SAMPLER_IMAGE1D`
+|`inTransform`
+|`ANARI_FLOAT32_MAT4`
+|
+default = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+
+|transform applied to the input attribute before sampling
+|`KHR_SAMPLER_IMAGE1D`
+|`outTransform`
+|`ANARI_FLOAT32_MAT4`
+|
+default = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+
+|transform applied to the sampled values
+|`KHR_SAMPLER_IMAGE1D`
+|===
+
+==== image2D
+Feature: `KHR_SAMPLER_IMAGE2D`
+
+Description: image2D object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_SAMPLER_IMAGE2D`
+|`image`
+|`ANARI_ARRAY2D`
+|
+required
+
+|array backing the sampler
+|`KHR_SAMPLER_IMAGE2D`
+|`inAttribute`
+|`ANARI_STRING`
+|
+default = attribute0
+
+|input surface attribute (texture coordinate)
+|`KHR_SAMPLER_IMAGE2D`
+|`filter`
+|`ANARI_STRING`
+|
+default = nearest
+
+|filter mode
+|`KHR_SAMPLER_IMAGE2D`
+|`wrapMode1`
+|`ANARI_STRING`
+|
+default = clampToEdge
+
+|wrap mode for the 1st dimension
+|`KHR_SAMPLER_IMAGE2D`
+|`wrapMode2`
+|`ANARI_STRING`
+|
+default = clampToEdge
+
+|wrap mode for the 2nd dimension
+|`KHR_SAMPLER_IMAGE2D`
+|`inTransform`
+|`ANARI_FLOAT32_MAT4`
+|
+default = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+
+|transform applied to the input attribute before sampling
+|`KHR_SAMPLER_IMAGE2D`
+|`outTransform`
+|`ANARI_FLOAT32_MAT4`
+|
+default = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+
+|transform applied to the sampled values
+|`KHR_SAMPLER_IMAGE2D`
+|===
+
+==== image3D
+Feature: `KHR_SAMPLER_IMAGE3D`
+
+Description: image3D object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_SAMPLER_IMAGE3D`
+|`image`
+|`ANARI_ARRAY3D`
+|
+required
+
+|array backing the sampler
+|`KHR_SAMPLER_IMAGE3D`
+|`inAttribute`
+|`ANARI_STRING`
+|
+default = attribute0
+
+|input surface attribute (texture coordinate)
+|`KHR_SAMPLER_IMAGE3D`
+|`filter`
+|`ANARI_STRING`
+|
+default = nearest
+
+|filter mode
+|`KHR_SAMPLER_IMAGE3D`
+|`wrapMode1`
+|`ANARI_STRING`
+|
+default = clampToEdge
+
+|wrap mode for the 1st dimension
+|`KHR_SAMPLER_IMAGE3D`
+|`wrapMode2`
+|`ANARI_STRING`
+|
+default = clampToEdge
+
+|wrap mode for the 2nd dimension
+|`KHR_SAMPLER_IMAGE3D`
+|`wrapMode3`
+|`ANARI_STRING`
+|
+default = clampToEdge
+
+|wrap mode for the 3rd dimension
+|`KHR_SAMPLER_IMAGE3D`
+|`inTransform`
+|`ANARI_FLOAT32_MAT4`
+|
+default = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+
+|transform applied to the input attribute before sampling
+|`KHR_SAMPLER_IMAGE3D`
+|`outTransform`
+|`ANARI_FLOAT32_MAT4`
+|
+default = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+
+|transform applied to the sampled values
+|`KHR_SAMPLER_IMAGE3D`
+|===
+
+==== primitive
+Feature: `KHR_SAMPLER_PRIMITIVE`
+
+Description: primitive sampler object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_SAMPLER_PRIMITIVE`
+|`array`
+|`ANARI_ARRAY1D`
+|
+required
+
+|backing array of the sampler
+|`KHR_SAMPLER_PRIMITIVE`
+|`offset`
+|`ANARI_UINT64`
+|
+default = 0
+
+|offset added to primitiveId
+|`KHR_SAMPLER_PRIMITIVE`
+|===
+
+==== transform
+Feature: `KHR_SAMPLER_TRANSFORM`
+
+Description: transform sampler object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_SAMPLER_TRANSFORM`
+|`inAttribute`
+|`ANARI_STRING`
+|
+default = attribute0
+
+|input surface attribute (texture coordinate)
+|`KHR_SAMPLER_TRANSFORM`
+|`transform`
+|`ANARI_FLOAT32_MAT4`
+|
+default = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+
+|transform applied to the input attribute
+|`KHR_SAMPLER_TRANSFORM`
+|===
+
+=== `ANARI_SPATIAL_FIELD`
+==== structuredRegular
+Feature: `KHR_SPATIAL_FIELD_STRUCTURED_REGULAR`
+
+Description: structured regular spatial field object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_SPATIAL_FIELD_STRUCTURED_REGULAR`
+|`data`
+|`ANARI_ARRAY3D`
+|
+required
+
+|array of vertex centered scalar values
+|`KHR_SPATIAL_FIELD_STRUCTURED_REGULAR`
+|`origin`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [0.0, 0.0, 0.0]
+
+|origin of the grid in object-space
+|`KHR_SPATIAL_FIELD_STRUCTURED_REGULAR`
+|`spacing`
+|`ANARI_FLOAT32_VEC3`
+|
+default = [1.0, 1.0, 1.0]
+
+|size of the grid cells in object-space
+|`KHR_SPATIAL_FIELD_STRUCTURED_REGULAR`
+|`filter`
+|`ANARI_STRING`
+|
+default = nearest
+
+|filter mode used to interpolate the grid
+|`KHR_SPATIAL_FIELD_STRUCTURED_REGULAR`
+|===
+
+=== `ANARI_SURFACE`
+Feature: `CORE_OBJECTS`
+
+Description: surface object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`CORE_OBJECTS`
+|`geometry`
+|`ANARI_GEOMETRY`
+|
+required
+
+|geometry object defining the surface geometry
+|`CORE_OBJECTS`
+|`material`
+|`ANARI_MATERIAL`
+|
+required
+
+|material object defining the surface appearance
+|`CORE_OBJECTS`
+|===
+
+=== `ANARI_VOLUME`
+==== scivis
+Feature: `KHR_VOLUME_SCIVIS`
+
+Description: scivis volume object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`KHR_VOLUME_SCIVIS`
+|`field`
+|`ANARI_SPATIAL_FIELD`
+|
+required
+
+|spatial field used for the field values of the volume
+|`KHR_VOLUME_SCIVIS`
+|`valueRange`
+|`ANARI_FLOAT32_BOX1`
+|
+default = [0.0, 1.0]
+
+|sampled values of field are clamped to this range
+|`KHR_VOLUME_SCIVIS`
+|`color`
+|`ANARI_ARRAY1D`
+|
+required
+
+|array to map sampled and clamped field values to color
+|`KHR_VOLUME_SCIVIS`
+|`color.position`
+|`ANARI_ARRAY1D`
+|
+
+|optional array to position the elements of color values in valueRange
+|`KHR_VOLUME_SCIVIS`
+|`opacity`
+|`ANARI_ARRAY1D`
+|
+required
+
+|array to map sampled and clamped field values to opacity
+|`KHR_VOLUME_SCIVIS`
+|`opacity.position`
+|`ANARI_ARRAY1D`
+|
+
+|optional array to position the elements of opacity values in valueRange
+|`KHR_VOLUME_SCIVIS`
+|`densityScale`
+|`ANARI_FLOAT32`
+|
+default = 1
+
+|makes volumes uniformly thinner or thicker
+|`KHR_VOLUME_SCIVIS`
+|===
+
+=== `ANARI_WORLD`
+Feature: `CORE_OBJECTS`
+
+Description: world object
+[cols="1,1,1,1,1"]
+|===
+|Name |Types |Misc |Description |Feature
+
+|`name`
+|`ANARI_STRING`
+|
+
+|optional object name
+|`CORE_OBJECTS`
+|`instance`
+|`ANARI_ARRAY1D`
+|
+
+|array of instance objects in the world
+|`CORE_OBJECTS`
+|`surface`
+|`ANARI_ARRAY1D`
+|
+
+|array of non-instanced surface objects in the world
+|`CORE_OBJECTS`
+|`volume`
+|`ANARI_ARRAY1D`
+|
+
+|array of non-instanced volume objects in the world
+|`CORE_OBJECTS`
+|`light`
+|`ANARI_ARRAY1D`
+|
+
+|array of non-instanced light objects in the world
+|`CORE_OBJECTS`
+|===
+
