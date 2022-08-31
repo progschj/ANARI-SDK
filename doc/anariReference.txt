@@ -819,9 +819,9 @@ default = [0.0, 1.0, 0.0]
 |camera up direction
 |`KHR_CAMERA_OMNIDIRECTIONAL`
 |`transform`
-|`ANARI_FLOAT32_MAT3x4`
+|`ANARI_FLOAT32_MAT4`
 |
-default = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+default = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
 
 |camera transform
 |`KHR_CAMERA_OMNIDIRECTIONAL`
@@ -943,9 +943,9 @@ default = [0.0, 1.0, 0.0]
 |camera up direction
 |`KHR_CAMERA_ORTHOGRAPHIC`
 |`transform`
-|`ANARI_FLOAT32_MAT3x4`
+|`ANARI_FLOAT32_MAT4`
 |
-default = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+default = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
 
 |camera transform
 |`KHR_CAMERA_ORTHOGRAPHIC`
@@ -1067,9 +1067,9 @@ default = [0.0, 1.0, 0.0]
 |camera up direction
 |`KHR_CAMERA_PERSPECTIVE`
 |`transform`
-|`ANARI_FLOAT32_MAT3x4`
+|`ANARI_FLOAT32_MAT4`
 |
-default = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+default = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
 
 |camera transform
 |`KHR_CAMERA_PERSPECTIVE`
