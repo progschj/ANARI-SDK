@@ -66,8 +66,12 @@ static void loadObj(
   for (auto &mat : objdata.materials) {
     auto m = anari::newObject<anari::Material>(d, "transparentMatte");
 
+    float averageTransmittance = 
+      (mat.transmittance[0]+mat.transmittance[1]+mat.transmittance[2])/3.0f;
+    float opacity = mat.dissolve*averageTransmittance;
+
     anari::setParameter(d, m, "color", ANARI_FLOAT32_VEC3, &mat.diffuse[0]);
-    anari::setParameter(d, m, "opacity", mat.dissolve);
+    anari::setParameter(d, m, "opacity", opacity);
     anari::commitParameters(d, m);
 
     materials.push_back(m);
