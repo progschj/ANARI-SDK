@@ -8,6 +8,7 @@ import json
 import merge_anari
 import argparse
 import pathlib
+import glob
 
 
 parser = argparse.ArgumentParser(description="Generate query functions for an ANARI device.")
@@ -123,6 +124,10 @@ ffibuilder.set_source('pyanari',
 if __name__ == "__main__":
     #ffibuilder.emit_c_code(str(args.outdir/"pyanari.c"))
     ffibuilder.compile(verbose=True, debug=False)
+    #this ends up with a funny python version specific name despite being version agnostic
+    pyanari_file = glob.glob('pyanari.*.so')
+    if pyanari_file:
+        os.rename(pyanari_file[0], 'pyanari.so')
 
 
 boilerplate = '''# Copyright 2021 The Khronos Group

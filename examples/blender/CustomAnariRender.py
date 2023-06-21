@@ -1,3 +1,6 @@
+# Copyright 2021 The Khronos Group
+# SPDX-License-Identifier: Apache-2.0
+
 import bpy
 import array
 import gpu
@@ -5,6 +8,13 @@ import math
 from gpu_extras.presets import draw_texture_2d
 import numpy as np
 from anari import *
+
+bl_info = {
+    "name": "Custom ANARI renderer",
+    "blender": (3, 5, 0),
+    "Description": "ANARI renderer integration",
+    "category": "Render",
+}
 
 prefixes = {
     lib.ANARI_SEVERITY_FATAL_ERROR : "FATAL",
@@ -40,7 +50,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         self.draw_data = None
 
         self.debug = anariLoadLibrary('debug', status_handle)
-        self.library = anariLoadLibrary('visgl', status_handle)
+        self.library = anariLoadLibrary('helide', status_handle)
 
         self.nested = anariNewDevice(self.library, 'default')
         anariCommitParameters(self.nested, self.nested)
@@ -459,8 +469,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
     # For viewport renders, this method gets called once at the start and
     # whenever the scene or 3D viewport changes. This method is where data
-    # should be read from Blender in the same thread. Typically a render
-    # thread will be started to do the work while keeping Blender responsive.
+    # should be read from Blender in the same thread.
     def view_update(self, context, depsgraph):
         region = context.region
         scene = depsgraph.scene
@@ -481,10 +490,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
 
     # For viewport renders, this method is called whenever Blender redraws
-    # the 3D viewport. The renderer is expected to quickly draw the render
-    # with OpenGL, and not perform other expensive work.
-    # Blender will draw overlays for selection and editing on top of the
-    # rendered image automatically.
+    # the 3D viewport.
     def view_draw(self, context, depsgraph):
         region = context.region
         scene = depsgraph.scene
@@ -522,9 +528,6 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
 
 # RenderEngines also need to tell UI Panels that they are compatible with.
-# We recommend to enable all panels marked as BLENDER_RENDER, and then
-# exclude any panels that are replaced by custom panels registered by the
-# render engine, or that are not supported.
 def get_panels():
     exclude_panels = {
         'VIEWLAYER_PT_filter',
