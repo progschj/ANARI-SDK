@@ -6,6 +6,8 @@ import array
 import gpu
 import math
 from gpu_extras.presets import draw_texture_2d
+from bl_ui.properties_render import RenderButtonsPanel
+from bpy.types import Panel
 import numpy as np
 from anari import *
 
@@ -30,6 +32,43 @@ def anari_status(device, source, sourceType, severity, code, message):
 
 status_handle = ffi.new_handle(anari_status) #something needs to keep this handle alive
 
+class ANARISceneProperties(bpy.types.PropertyGroup):
+    library: bpy.props.StringProperty(name = "library", default = "helide")
+    device: bpy.props.StringProperty(name = "device", default = "default")
+    debug: bpy.props.BoolProperty(name = "debug", default = False)
+    trace: bpy.props.BoolProperty(name = "trace", default = False)
+
+    @classmethod
+    def register(cls):
+        bpy.types.Scene.anari = bpy.props.PointerProperty(
+            name="ANARI Scene Settings",
+            description="ANARI scene settings",
+            type=cls,
+        )
+
+    @classmethod
+    def unregister(cls):
+        del bpy.types.Scene.anari
+
+class RENDER_PT_anari_device(RenderButtonsPanel, Panel):
+    bl_label = "ANARI Device"
+    COMPAT_ENGINES = {'ANARI'}
+
+    @classmethod
+    def poll(cls, context):
+        return (context.engine in cls.COMPAT_ENGINES)
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+
+        col = layout.column()
+        col.prop(context.scene.anari, 'library')
+        col.prop(context.scene.anari, 'device')
+        col.prop(context.scene.anari, 'debug')
+        if context.scene.anari.debug:
+            col.prop(context.scene.anari, 'trace')
 
 class ANARIRenderEngine(bpy.types.RenderEngine):
     # These three members are used by blender to set up the
@@ -49,16 +88,26 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         self.scene_data = None
         self.draw_data = None
 
-        self.debug = anariLoadLibrary('debug', status_handle)
-        self.library = anariLoadLibrary('helide', status_handle)
+        libraryname = bpy.context.scene.anari.library
+        devicename = bpy.context.scene.anari.device
 
-        self.nested = anariNewDevice(self.library, 'default')
-        anariCommitParameters(self.nested, self.nested)
+    
+        self.library = anariLoadLibrary(libraryname, status_handle)
+        if not self.library:
+            #if loading the library fails substitute the sink device
+            self.library = anariLoadLibrary('sink', status_handle)
 
-        self.device = anariNewDevice(self.debug, 'debug')
-        anariSetParameter(self.device, self.device, 'wrappedDevice', ANARI_DEVICE, self.nested)
-        #anariSetParameter(device, device, 'traceMode', ANARI_STRING, 'code')
+        self.device = anariNewDevice(self.library, devicename)
         anariCommitParameters(self.device, self.device)
+
+        if bpy.context.scene.anari.debug:
+            nested = self.device
+            self.debug = anariLoadLibrary('debug', status_handle)
+            self.device = anariNewDevice(self.debug, 'debug')
+            anariSetParameter(self.device, self.device, 'wrappedDevice', ANARI_DEVICE, nested)
+            if bpy.context.scene.anari.debug:
+                anariSetParameter(device, device, 'traceMode', ANARI_STRING, 'code')
+            anariCommitParameters(self.device, self.device)
 
         self.frame = None
         self.camera = None
@@ -527,13 +576,38 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         gpu.state.blend_set('NONE')
 
 
+classes = [
+    ANARISceneProperties,
+    ANARIRenderEngine,
+    RENDER_PT_anari_device,
+]
+
 # RenderEngines also need to tell UI Panels that they are compatible with.
 def get_panels():
     exclude_panels = {
         'VIEWLAYER_PT_filter',
         'VIEWLAYER_PT_layer_passes',
+        'RENDER_PT_eevee_ambient_occlusion',
+        'RENDER_PT_eevee_motion_blur',
+        'RENDER_PT_eevee_next_motion_blur',
+        'RENDER_PT_motion_blur_curve',
+        'RENDER_PT_eevee_depth_of_field',
+        'RENDER_PT_eevee_next_depth_of_field',
+        'RENDER_PT_eevee_bloom',
+        'RENDER_PT_eevee_volumetric',
+        'RENDER_PT_eevee_volumetric_lighting',
+        'RENDER_PT_eevee_volumetric_shadows',
+        'RENDER_PT_eevee_subsurface_scattering',
+        'RENDER_PT_eevee_screen_space_reflections',
+        'RENDER_PT_eevee_shadows',
+        'RENDER_PT_eevee_next_shadows',
+        'RENDER_PT_eevee_sampling',
+        'RENDER_PT_eevee_indirect_lighting',
+        'RENDER_PT_eevee_indirect_lighting_display',
+        'RENDER_PT_eevee_film',
+        'RENDER_PT_eevee_hair',
+        'RENDER_PT_eevee_performance',
     }
-
     panels = []
     for panel in bpy.types.Panel.__subclasses__():
         if hasattr(panel, 'COMPAT_ENGINES') and ('BLENDER_RENDER' in panel.COMPAT_ENGINES or 'BLENDER_EEVEE' in panel.COMPAT_ENGINES):
@@ -545,14 +619,16 @@ def get_panels():
 
 def register():
     # Register the RenderEngine
-    bpy.utils.register_class(ANARIRenderEngine)
+    for c in classes:
+        bpy.utils.register_class(c)
 
     for panel in get_panels():
         panel.COMPAT_ENGINES.add('ANARI')
 
 
 def unregister():
-    bpy.utils.unregister_class(ANARIRenderEngine)
+    for c in classes:
+        bpy.utils.unregister_class(c)
 
     for panel in get_panels():
         if 'ANARI' in panel.COMPAT_ENGINES:
