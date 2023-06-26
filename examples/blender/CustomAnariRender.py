@@ -111,6 +111,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
         self.frame = None
         self.camera = None
+        self.camera_data = None
         self.perspective = anariNewCamera(self.device, 'perspective')
         self.ortho = anariNewCamera(self.device, 'orthographic')
         self.world = anariNewWorld(self.device)
@@ -127,6 +128,10 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         self.samplers = dict()
 
         self.scene_instances = []
+
+        self.gputexture = None
+        self.rendering = False
+        self.scene_updated = False
 
 
     # When the render engine instance is destroyed, this is called. Clean up any
@@ -183,6 +188,19 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
                 fovx = 2.0 * math.atan(36 / space_view.lens)
                 zoom = 1
 
+        cam_transform = transform.transposed()
+        cam_pos = cam_transform[3][0:3]
+        cam_view = (-cam_transform[2])[0:3]
+        cam_up = cam_transform[1][0:3]
+
+
+
+        camera_data = (fovx, zoom) + tuple(cam_pos) + tuple(cam_view) + tuple(cam_up)
+
+        if camera_data == self.camera_data:
+            return None
+        else:
+            self.camera_data = camera_data
 
         if fovx > 0:
             self.camera = self.perspective
@@ -191,12 +209,6 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         else:
             self.camera = self.ortho
             anariSetParameter(self.device, self.camera, 'height', ANARI_FLOAT32, zoom/width*height)
-
-            
-        cam_transform = transform.transposed()
-        cam_pos = cam_transform[3][0:3]
-        cam_view = (-cam_transform[2])[0:3]
-        cam_up = cam_transform[1][0:3]
 
         anariSetParameter(self.device, self.camera, 'aspect', ANARI_FLOAT32, width/height)
         anariSetParameter(self.device, self.camera, 'position', ANARI_FLOAT32_VEC3, cam_pos)
@@ -536,44 +548,66 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         anariSetParameter(self.device, frame, 'world', ANARI_WORLD, self.world)
         anariCommitParameters(self.device, frame)
 
+        self.scene_updated = True
+
 
 
     # For viewport renders, this method is called whenever Blender redraws
     # the 3D viewport.
     def view_draw(self, context, depsgraph):
+
+        #pull some data
         region = context.region
         scene = depsgraph.scene
 
         width = region.width
         height = region.height
 
-
-        self.extract_camera(depsgraph, width, height, region_view=context.region_data, space_view=context.space_data)
-
         frame = self.anari_frame(width, height)
-        anariSetParameter(self.device, frame, 'camera', ANARI_CAMERA, self.camera)
-        anariCommitParameters(self.device, frame)
 
 
-        anariRenderFrame(self.device, frame)
-        anariFrameReady(self.device, frame, ANARI_WAIT)
-        void_pixels, frame_width, frame_height, frame_type = anariMapFrame(self.device, frame, 'channel.color')
+        require_redraw = self.scene_updated
+        self.scene_updated = False
 
-        unpacked_pixels = ffi.buffer(void_pixels, frame_width*frame_height*4)
-        pixels = np.array(unpacked_pixels).astype(np.float32)*(1.0/255.0)
-        rect = pixels.reshape((width*height, 4))
-        anariUnmapFrame(self.device, frame, 'channel.color')
+        if self.extract_camera(depsgraph, width, height, region_view=context.region_data, space_view=context.space_data):
+            anariSetParameter(self.device, frame, 'camera', ANARI_CAMERA, self.camera)
+            anariCommitParameters(self.device, frame)
+            require_redraw = True
 
-        self.gpupixels = gpu.types.Buffer('FLOAT', width * height * 4, pixels)
-        self.gputexture = gpu.types.GPUTexture((width, height), format='RGBA16F', data=self.gpupixels)
-        # Bind shader that converts from scene linear to display space,
+        # hard render if we don't have a preexisting image
+        if not self.gputexture:
+            anariRenderFrame(self.device, frame)
+            anariFrameReady(self.device, frame, ANARI_WAIT)
+            self.rendering = True
+            require_redraw = False
+            
+        # pull new data if a render has completed
+        if self.rendering and anariFrameReady(self.device, frame, ANARI_NO_WAIT):
+            void_pixels, frame_width, frame_height, frame_type = anariMapFrame(self.device, frame, 'channel.color')
+            unpacked_pixels = ffi.buffer(void_pixels, frame_width*frame_height*4)
+            pixels = np.array(unpacked_pixels).astype(np.float32)*(1.0/255.0)
+            anariUnmapFrame(self.device, frame, 'channel.color')
+
+            self.gpupixels = gpu.types.Buffer('FLOAT', frame_width * frame_height * 4, pixels)
+            self.gputexture = gpu.types.GPUTexture((frame_width, frame_height), format='RGBA16F', data=self.gpupixels)
+
+            self.rendering = False
+
+        # present
         gpu.state.blend_set('ALPHA_PREMULT')
         self.bind_display_space_shader(scene)
-
-        draw_texture_2d(self.gputexture, (0, 0), self.gputexture.width, self.gputexture.height)
-
+        draw_texture_2d(self.gputexture, (0, 0), region.width, region.height)
         self.unbind_display_space_shader()
         gpu.state.blend_set('NONE')
+
+        # continue drawing as long as changes happen
+        if require_redraw and not self.rendering:
+            anariRenderFrame(self.device, frame)
+            self.rendering = True
+
+        # make blender call us again while we wait in the render to complete
+        if self.rendering:
+            self.tag_redraw()
 
 
 classes = [
