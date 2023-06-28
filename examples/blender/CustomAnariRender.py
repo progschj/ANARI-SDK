@@ -5,6 +5,7 @@ import bpy
 import array
 import gpu
 import math
+from mathutils import Vector
 from gpu_extras.presets import draw_texture_2d
 from bl_ui.properties_render import RenderButtonsPanel
 from bpy.types import Panel
@@ -151,6 +152,17 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
     scene_data = dict()
 
+    def project_bounds(self, origin, axis):
+        values = (1e20, -1.e20)
+        for i in range(0, 8):
+            corner = Vector((
+                self.bounds_min[0] if (i&1)==0 else self.bounds_max[0],
+                self.bounds_min[1] if (i&2)==0 else self.bounds_max[1],
+                self.bounds_min[2] if (i&4)==0 else self.bounds_max[2],
+            ))-origin
+            v = corner.dot(axis)
+            values = (min(values[0], v), max(values[1], v))
+        return values
 
     def extract_camera(self, depsgraph, width, height, region_view=None, space_view=None):
         scene = depsgraph.scene
@@ -193,10 +205,9 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         cam_view = (-cam_transform[2])[0:3]
         cam_up = cam_transform[1][0:3]
 
-
-
         camera_data = (fovx, zoom) + tuple(cam_pos) + tuple(cam_view) + tuple(cam_up)
 
+        # only updated if the camera actually changed
         if camera_data == self.camera_data:
             return None
         else:
@@ -207,8 +218,11 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
             fovy = 2.0*math.atan(math.tan(0.5*fovx)/width*height*zoom)
             anariSetParameter(self.device, self.camera, 'fovy', ANARI_FLOAT32, fovy)
         else:
+            bounds = self.project_bounds(Vector(cam_pos), Vector(cam_view))
+            cam_pos = (Vector(cam_pos) + bounds[0]*Vector(cam_view))[:]
             self.camera = self.ortho
-            anariSetParameter(self.device, self.camera, 'height', ANARI_FLOAT32, zoom/width*height)
+            anariSetParameter(self.device, self.camera, 'height', ANARI_FLOAT32, 2.0*zoom/width*height)
+
 
         anariSetParameter(self.device, self.camera, 'aspect', ANARI_FLOAT32, width/height)
         anariSetParameter(self.device, self.camera, 'position', ANARI_FLOAT32_VEC3, cam_pos)
@@ -409,6 +423,8 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
             self.parse_source_node(material, 'roughness', ANARI_FLOAT32, shader.inputs['Roughness'])
             anariCommitParameters(self.device, material)
             return material
+        else:
+            return self.default_material
 
 
     def read_scene(self, depsgraph):
@@ -419,8 +435,6 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
         scene_instances = []
 
-        #for update in depsgraph.updates:
-        #    obj = update.id
         for obj in depsgraph.objects:
             objmesh = None
             if obj.type in {'MESH', 'CURVE', 'SURFACE', 'FONT', 'META'}:
@@ -429,6 +443,20 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
                 continue
                 
             name = obj.name
+
+            #if name in self.meshes:
+            #    continue
+
+            self.bounds_min = np.array([1.e20, 1.e20, 1.e20])
+            self.bounds_max = np.array([-1.e20, -1.e20, -1.e20])
+            for v in obj.bound_box[:]:
+                corner = obj.matrix_world@Vector(v)
+                val = np.array(corner[:])
+                self.bounds_min = np.minimum(self.bounds_min, val)
+                self.bounds_max = np.maximum(self.bounds_max, val)
+
+
+
             (mesh, material, surface, group, instance) = self.mesh_to_geometry(objmesh, name)
 
             objmaterial = self.default_material
