@@ -168,7 +168,7 @@ special = {
 ''',
     'anariNewArray1D' :
     '''def anariNewArray1D(device, appMemory, dataType, numItems1):
-    result = lib.anariNewArray1D(device, ffi.NULL, ffi.NULL, ffi.NULL, dataType, numItems1, 0)
+    result = lib.anariNewArray1D(device, ffi.NULL, ffi.NULL, ffi.NULL, dataType, numItems1)
     ptr = lib.anariMapArray(device, result)
     ffi.memmove(ptr, appMemory, ffi.sizeof(_typeof[dataType])*numItems1)
     lib.anariUnmapArray(device, result)
@@ -178,7 +178,7 @@ special = {
 ''',
     'anariNewArray2D' :
     '''def anariNewArray2D(device, appMemory, dataType, numItems1, numItems2):
-    result = lib.anariNewArray2D(device, ffi.NULL, ffi.NULL, ffi.NULL, dataType, numItems1, numItems2, 0, 0)
+    result = lib.anariNewArray2D(device, ffi.NULL, ffi.NULL, ffi.NULL, dataType, numItems1, numItems2)
     ptr = lib.anariMapArray(device, result)
     ffi.memmove(ptr, appMemory, ffi.sizeof(_typeof[dataType])*numItems1*numItems2)
     lib.anariUnmapArray(device, result)
