@@ -28,8 +28,24 @@ prefixes = {
     lib.ANARI_SEVERITY_DEBUG : "DEBUG"
 }
 
+renderer_enum_info = [("default", "default", "default")]
+current_renderer = 0
+
 def anari_status(device, source, sourceType, severity, code, message):
     print('[%s]: '%prefixes[severity]+message)
+
+def get_renderer_enum_info(self, context):
+    global renderer_enum_info
+    return renderer_enum_info
+
+def set_current_renderer(self, value):
+    global current_renderer
+    current_renderer = value
+
+def get_current_renderer_name():
+    global current_renderer
+    global renderer_enum_info
+    return renderer_enum_info[current_renderer][1]
 
 status_handle = ffi.new_handle(anari_status) #something needs to keep this handle alive
 
@@ -38,6 +54,12 @@ class ANARISceneProperties(bpy.types.PropertyGroup):
     device: bpy.props.StringProperty(name = "device", default = "default")
     debug: bpy.props.BoolProperty(name = "debug", default = False)
     trace: bpy.props.BoolProperty(name = "trace", default = False)
+    renderer: bpy.props.EnumProperty(
+        items = get_renderer_enum_info,
+        name = "Renderer",
+        default = None,
+        set = set_current_renderer
+    )
 
     @classmethod
     def register(cls):
@@ -70,6 +92,7 @@ class RENDER_PT_anari_device(RenderButtonsPanel, Panel):
         col.prop(context.scene.anari, 'debug')
         if context.scene.anari.debug:
             col.prop(context.scene.anari, 'trace')
+        col.prop(context.scene.anari, 'renderer')
 
 class ANARIRenderEngine(bpy.types.RenderEngine):
     # These three members are used by blender to set up the
@@ -92,7 +115,6 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         libraryname = bpy.context.scene.anari.library
         devicename = bpy.context.scene.anari.device
 
-    
         self.library = anariLoadLibrary(libraryname, status_handle)
         if not self.library:
             #if loading the library fails substitute the sink device
@@ -100,6 +122,25 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
         self.device = anariNewDevice(self.library, devicename)
         anariCommitParameters(self.device, self.device)
+
+        rendererNames = anariGetObjectSubtypes(self.device, ANARI_RENDERER)
+
+        newRendererList = []
+
+        i = 0
+        while rendererNames[i] != ffi.NULL:
+            name = str(ffi.string(rendererNames[i]), 'utf-8')
+            newRendererList.append((name, name, name))
+            i += 1
+
+        if len(newRendererList) > 1 and newRendererList[0][0] == "default":
+            newRendererList.pop(0)
+
+        if len(newRendererList) == 0:
+            newRendererList.append(("default", "default", "default"))
+
+        global renderer_enum_info
+        renderer_enum_info = newRendererList
 
         if bpy.context.scene.anari.debug:
             nested = self.device
@@ -116,7 +157,8 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         self.perspective = anariNewCamera(self.device, 'perspective')
         self.ortho = anariNewCamera(self.device, 'orthographic')
         self.world = anariNewWorld(self.device)
-        self.renderer = anariNewRenderer(self.device, 'default')
+        self.current_renderer = current_renderer
+        self.renderer = anariNewRenderer(self.device, get_current_renderer_name())
         anariCommitParameters(self.device, self.renderer)
 
         self.default_material = anariNewMaterial(self.device, 'matte')
@@ -182,9 +224,8 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         else:
             camera = scene.objects['Camera']
 
-        
         if camera:
-            transform = camera.matrix_world            
+            transform = camera.matrix_world
             if camera.data.type == "ORTHO":
                 fovx = 0
                 zoom = camera.data.ortho_scale
@@ -267,7 +308,6 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
             self.lights[name] = (light, subtype)
             return light
 
-
     def update_array(self, name, atype, data, components):
         elements = data.size//components
         if name in self.arrays:
@@ -275,7 +315,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
             if atype == oldtype and elements == oldelements:
                 # update in place
                 ptr = anariMapArray(self.device, array)
-                ffi.memmove(ptr, ffi.from_buffer(data), data.size*data.itemsize) 
+                ffi.memmove(ptr, ffi.from_buffer(data), data.size*data.itemsize)
                 anariUnmapArray(self.device, array)
                 return (array, False)
 
@@ -381,7 +421,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
                     if link.from_socket.name == "Alpha":
                         #swizzle alpha into first position
                         anariSetParameter(self.device, sampler, 'outTransform', ANARI_FLOAT32_MAT4, [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0])
-                        
+
                     # todo set filter and repeat modes here
                     anariCommitParameters(self.device, sampler)
                     anariSetParameter(self.device, material, paramname, ANARI_SAMPLER, sampler)
@@ -428,6 +468,9 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
 
     def read_scene(self, depsgraph):
+        global current_renderer
+        if self.current_renderer != current_renderer:
+            self.renderer = anariNewRenderer(self.device, get_current_renderer_name())
 
         bg_color = depsgraph.scene.world.color[:]+(1.0,)
         anariSetParameter(self.device, self.renderer, 'background', ANARI_FLOAT32_VEC4, bg_color)
@@ -441,7 +484,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
                 objmesh = obj.to_mesh()
             else:
                 continue
-                
+
             name = obj.name
 
             #if name in self.meshes:
@@ -525,13 +568,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         height = int(scene.render.resolution_y * scale)
 
         self.extract_camera(depsgraph, width, height)
-
-        bg_color = depsgraph.scene.world.color[:]+(1.0,)
-        anariSetParameter(self.device, self.renderer, 'background', ANARI_FLOAT32_VEC4, bg_color)
-        anariCommitParameters(self.device, self.renderer)
-
         self.read_scene(depsgraph)
-
 
         frame = self.anari_frame(width, height)
         anariSetParameter(self.device, frame, 'renderer', ANARI_RENDERER, self.renderer)
@@ -608,7 +645,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
             anariFrameReady(self.device, frame, ANARI_WAIT)
             self.rendering = True
             require_redraw = False
-            
+
         # pull new data if a render has completed
         if self.rendering and anariFrameReady(self.device, frame, ANARI_NO_WAIT):
             void_pixels, frame_width, frame_height, frame_type = anariMapFrame(self.device, frame, 'channel.color')
