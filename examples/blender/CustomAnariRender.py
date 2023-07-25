@@ -308,21 +308,6 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
             self.lights[name] = (light, subtype)
             return light
 
-    def update_array(self, name, atype, data, components):
-        elements = data.size//components
-        if name in self.arrays:
-            (array, oldtype, oldelements) = self.arrays[name]
-            if atype == oldtype and elements == oldelements:
-                # update in place
-                ptr = anariMapArray(self.device, array)
-                ffi.memmove(ptr, ffi.from_buffer(data), data.size*data.itemsize)
-                anariUnmapArray(self.device, array)
-                return (array, False)
-
-        array = anariNewArray1D(self.device, ffi.from_buffer(data), atype, elements)
-        self.arrays[name] = (array, atype, elements)
-        return (array, True)
-
 
     def mesh_to_geometry(self, objmesh, name):
         objmesh.calc_loop_triangles()
@@ -351,32 +336,25 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
         (mesh, material, surface, group, instance) = self.get_mesh(name)
 
-        require_commit = False
+        (ptr, stride) = anariMapParameterArray1D(self.device, mesh, 'vertex.position', ANARI_FLOAT32_VEC3, vertices.size//3)
+        ffi.memmove(ptr, ffi.from_buffer(vertices), 4*vertices.size)
+        anariUnmapParameterArray(self.device, mesh, 'vertex.position')
 
-        (array, replaced) = self.update_array(name+'_vertex.position', ANARI_FLOAT32_VEC3, vertices, 3)
-        if replaced:
-            anariSetParameter(self.device, mesh, 'vertex.position', ANARI_ARRAY1D, array)
-            require_commit = True
-
-        (array, replaced) = self.update_array(name+'_vertex.normal', ANARI_FLOAT32_VEC3, normals, 3)
-        if replaced:
-            anariSetParameter(self.device, mesh, 'vertex.normal', ANARI_ARRAY1D, array)
-            require_commit = True
+        (ptr, stride) = anariMapParameterArray1D(self.device, mesh, 'vertex.normal', ANARI_FLOAT32_VEC3, normals.size//3)
+        ffi.memmove(ptr, ffi.from_buffer(normals), 4*normals.size)
+        anariUnmapParameterArray(self.device, mesh, 'vertex.normal')
 
         if flat_uvs:
-            (array, replaced) = self.update_array(name+'_vertex.attribute0', ANARI_FLOAT32_VEC2, uvs, 2)
-            if replaced:
-                anariSetParameter(self.device, mesh, 'vertex.attribute0', ANARI_ARRAY1D, array)
-                require_commit = True
+            (ptr, stride) = anariMapParameterArray1D(self.device, mesh, 'vertex.attribute0', ANARI_FLOAT32_VEC2, uvs.size//2)
+            ffi.memmove(ptr, ffi.from_buffer(uvs), 4*uvs.size)
+            anariUnmapParameterArray(self.device, mesh, 'vertex.attribute0')
 
         if flat_colors:
-            (array, replaced) = self.update_array(name+'_vertex.color', ANARI_FLOAT32_VEC4, colors, 4)
-            if replaced:
-                anariSetParameter(self.device, mesh, 'vertex.color', ANARI_ARRAY1D, array)
-                require_commit = True
+            (ptr, stride) = anariMapParameterArray1D(self.device, mesh, 'vertex.color', ANARI_FLOAT32_VEC4, colors.size//4)
+            ffi.memmove(ptr, ffi.from_buffer(colors), 4*colors.size)
+            anariUnmapParameterArray(self.device, mesh, 'vertex.color')
 
-        if require_commit:
-            anariCommitParameters(self.device, mesh)
+        anariCommitParameters(self.device, mesh)
 
         return (mesh, material, surface, group, instance)
 
@@ -387,8 +365,14 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         else:
             image.update()
             if image.has_data:
-                atype = [ANARI_FLOAT32, ANARI_FLOAT32_VEC2, ANARI_FLOAT32_VEC3, ANARI_FLOAT32_VEC4][image.channels-1]
+                atype = None
                 pixbuf = np.array(image.pixels, dtype=np.float32)
+                if image.depth == 8:
+                    atype = [ANARI_UFIXED8, ANARI_UFIXED8_VEC2, ANARI_UFIXED8_VEC3, ANARI_UFIXED8_VEC4][image.channels-1]
+                    pixbuf = (pixbuf*255).astype(np.ubyte)
+                else:
+                    atype = [ANARI_FLOAT32, ANARI_FLOAT32_VEC2, ANARI_FLOAT32_VEC3, ANARI_FLOAT32_VEC4][image.channels-1]
+                
                 pixels = anariNewArray2D(self.device, ffi.from_buffer(pixbuf), atype, image.size[0], image.size[1])
                 self.images[image] = pixels
                 return pixels

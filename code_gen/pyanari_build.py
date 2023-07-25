@@ -205,6 +205,30 @@ special = {
     return (result, int(frame_width[0]), int(frame_height[0]), int(frame_type[0]))
 
 ''',
+    'anariMapParameterArray1D' :
+    '''def anariMapParameterArray1D(device, object, name, dataType, numElements1):
+    elementStride = ffi.new('uint64_t*', 0)
+    result = lib.anariMapParameterArray1D(device, object, name.encode('utf-8'), dataType, numElements1, elementStride)
+    result = ffi.cast(_basepointer[dataType], result)
+    return (result, int(elementStride[0]))
+
+''',
+    'anariMapParameterArray2D' :
+    '''def anariMapParameterArray2D(device, object, name, dataType, numElements1, numElements2):
+    elementStride = ffi.new('uint64_t*', 0)
+    result = lib.anariMapParameterArray1D(device, object, name.encode('utf-8'), dataType, numElements1, numElements2, elementStride)
+    result = ffi.cast(_basepointer[dataType], result)
+    return (result, int(elementStride[0]))
+
+''',
+    'anariMapParameterArray3D' :
+    '''def anariMapParameterArray3D(device, object, name, dataType, numElements1, numElements2, numElements3):
+    elementStride = ffi.new('uint64_t*', 0)
+    result = lib.anariMapParameterArray1D(device, object, name.encode('utf-8'), dataType, numElements1, numElements2, numElements3, elementStride)
+    result = ffi.cast(_basepointer[dataType], result)
+    return (result, int(elementStride[0]))
+
+''',
     'anariRelease' : '', # remove these to avoid confusion
     'anariRetain' : '',
     'anariUnloadLibrary' : ''
@@ -263,6 +287,11 @@ def write_wrappers(anari):
             code += '    %s : \'%s\',\n'%(value['name'], value['baseType'])
         else:
             code += '    %s : \'%s[%d]\',\n'%(value['name'], value['baseType'], value['elements'])
+    code += '}\n'
+
+    code += '_basepointer = {\n'
+    for value in types['values']:
+        code += '    %s : \'%s*\',\n'%(value['name'], value['baseType'])
     code += '}\n'
 
 
