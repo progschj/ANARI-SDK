@@ -360,8 +360,8 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
 
     def image_handle(self, image):
-        if image in self.images:
-            return self.images[image]
+        if image.name in self.images:
+            return self.images[image.name]
         else:
             image.update()
             if image.has_data:
@@ -374,7 +374,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
                     atype = [ANARI_FLOAT32, ANARI_FLOAT32_VEC2, ANARI_FLOAT32_VEC3, ANARI_FLOAT32_VEC4][image.channels-1]
                 
                 pixels = anariNewArray2D(self.device, ffi.from_buffer(pixbuf), atype, image.size[0], image.size[1])
-                self.images[image] = pixels
+                self.images[image.name] = pixels
                 return pixels
             else:
                 return None
