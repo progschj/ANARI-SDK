@@ -406,7 +406,28 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
                         #swizzle alpha into first position
                         anariSetParameter(self.device, sampler, 'outTransform', ANARI_FLOAT32_MAT4, [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0])
 
-                    # todo set filter and repeat modes here
+                    repeatMode = None
+                    if node.extension == 'REPEAT':
+                        repeatMode = 'repeat'
+                    elif node.extension == 'MIRROR':
+                        repeatMode = 'mirrorRepeat'
+                    elif node.extension == 'EXTEND':
+                        repeatMode = 'clampToEdge'
+
+                    if repeatMode:
+                        anariSetParameter(self.device, sampler, 'wrapMode1', ANARI_STRING, repeatMode)
+                        anariSetParameter(self.device, sampler, 'wrapMode2', ANARI_STRING, repeatMode)
+
+                    filterMode = None
+                    if node.interpolation == 'LINEAR':
+                        filterMode = 'linear'
+                    elif node.interpolation == 'CLOSEST':
+                        filterMode = 'nearest'
+
+                    if filterMode:
+                        anariSetParameter(self.device, sampler, 'filter', ANARI_STRING, filterMode)
+
+                        
                     anariCommitParameters(self.device, sampler)
                     anariSetParameter(self.device, material, paramname, ANARI_SAMPLER, sampler)
                     return
