@@ -148,7 +148,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
             self.device = anariNewDevice(self.debug, 'debug')
             anariSetParameter(self.device, self.device, 'wrappedDevice', ANARI_DEVICE, nested)
             if bpy.context.scene.anari.debug:
-                anariSetParameter(device, device, 'traceMode', ANARI_STRING, 'code')
+                anariSetParameter(self.device, self.device, 'traceMode', ANARI_STRING, 'code')
             anariCommitParameters(self.device, self.device)
 
         self.frame = None
