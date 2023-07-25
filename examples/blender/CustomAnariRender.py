@@ -525,9 +525,10 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
             scene_instances.append(instance)
 
-        instances = ffi.new('ANARIInstance[]', scene_instances)
-        array = anariNewArray1D(self.device, instances, ANARI_SURFACE, len(scene_instances))
-        anariSetParameter(self.device, self.world, 'instance', ANARI_ARRAY1D, array)
+        (ptr, stride) = anariMapParameterArray1D(self.device, self.world, 'instance', ANARI_INSTANCE, len(scene_instances))
+        for i, instance in enumerate(scene_instances):
+            ptr[i] = instance
+        anariUnmapParameterArray(self.device, self.world, 'instance')
 
         scene_lights = []
         for key, obj in depsgraph.objects.items():
@@ -557,9 +558,10 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
                 scene_lights.append(light)
 
 
-        lights = ffi.new('ANARILight[]', scene_lights)
-        array = anariNewArray1D(self.device, lights, ANARI_LIGHT, len(scene_lights))
-        anariSetParameter(self.device, self.world, 'light', ANARI_ARRAY1D, array)
+        (ptr, stride) = anariMapParameterArray1D(self.device, self.world, 'light', ANARI_LIGHT, len(scene_lights))
+        for i, light in enumerate(scene_lights):
+            ptr[i] = light
+        anariUnmapParameterArray(self.device, self.world, 'light')
 
         anariCommitParameters(self.device, self.world)
 
