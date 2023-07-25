@@ -367,7 +367,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
             if image.has_data:
                 atype = None
                 pixbuf = np.array(image.pixels, dtype=np.float32)
-                if image.depth == 8:
+                if image.depth//image.channels <= 8:
                     atype = [ANARI_UFIXED8, ANARI_UFIXED8_VEC2, ANARI_UFIXED8_VEC3, ANARI_UFIXED8_VEC4][image.channels-1]
                     pixbuf = (pixbuf*255).astype(np.ubyte)
                 else:
