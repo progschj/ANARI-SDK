@@ -54,6 +54,8 @@ class ANARISceneProperties(bpy.types.PropertyGroup):
     device: bpy.props.StringProperty(name = "device", default = "default")
     debug: bpy.props.BoolProperty(name = "debug", default = False)
     trace: bpy.props.BoolProperty(name = "trace", default = False)
+    accumulation: bpy.props.BoolProperty(name = "accumulation", default = False)
+    iterations: bpy.props.IntProperty(name = "iterations", default = 8)
     renderer: bpy.props.EnumProperty(
         items = get_renderer_enum_info,
         name = "Renderer",
@@ -93,6 +95,9 @@ class RENDER_PT_anari_device(RenderButtonsPanel, Panel):
         if context.scene.anari.debug:
             col.prop(context.scene.anari, 'trace')
         col.prop(context.scene.anari, 'renderer')
+        col.prop(context.scene.anari, 'accumulation')
+        if context.scene.anari.accumulation:
+            col.prop(context.scene.anari, 'iterations')
 
 class ANARIRenderEngine(bpy.types.RenderEngine):
     # These three members are used by blender to set up the
@@ -151,6 +156,8 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
                 anariSetParameter(self.device, self.device, 'traceMode', ANARI_STRING, 'code')
             anariCommitParameters(self.device, self.device)
 
+        self.width = 0
+        self.height = 0
         self.frame = None
         self.camera = None
         self.camera_data = None
@@ -175,12 +182,26 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         self.gputexture = None
         self.rendering = False
         self.scene_updated = False
-
+        self.iteration = 0
+        self.epoch = 0
+        self.rendered_epoch = 0
 
     # When the render engine instance is destroyed, this is called. Clean up any
     # render engine data here, for example stopping running render threads.
     def __del__(self):
         pass
+
+    def scene_changed(self):
+        self.scene_updated = True
+        self.iteration = 0
+        self.epoch += 1
+
+    def render_converged(self):
+        threshold = 1
+        if bpy.context.scene.anari.accumulation:
+            threshold = bpy.context.scene.anari.iterations 
+        
+        return self.iteration >= threshold           
 
     def anari_frame(self, width=0, height=0):
         if not self.frame:
@@ -620,7 +641,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         anariSetParameter(self.device, frame, 'world', ANARI_WORLD, self.world)
         anariCommitParameters(self.device, frame)
 
-        self.scene_updated = True
+        self.scene_changed()
 
 
 
@@ -632,19 +653,22 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         region = context.region
         scene = depsgraph.scene
 
-        width = region.width
-        height = region.height
+        # see if something about the viewport or camera has changed
+        if self.width != region.width or self.height != region.height:
+            self.width = region.width
+            self.height = region.height
+            self.scene_changed()
 
-        frame = self.anari_frame(width, height)
+        frame = self.anari_frame(self.width, self.height)
+
+        if self.extract_camera(depsgraph, self.width, self.height, region_view=context.region_data, space_view=context.space_data):
+            anariSetParameter(self.device, frame, 'camera', ANARI_CAMERA, self.camera)
+            anariCommitParameters(self.device, frame)
+            self.scene_changed()
 
 
         require_redraw = self.scene_updated
         self.scene_updated = False
-
-        if self.extract_camera(depsgraph, width, height, region_view=context.region_data, space_view=context.space_data):
-            anariSetParameter(self.device, frame, 'camera', ANARI_CAMERA, self.camera)
-            anariCommitParameters(self.device, frame)
-            require_redraw = True
 
         # hard render if we don't have a preexisting image
         if not self.gputexture:
@@ -664,6 +688,13 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
             self.gputexture = gpu.types.GPUTexture((frame_width, frame_height), format='RGBA16F', data=self.gpupixels)
 
             self.rendering = False
+            self.iteration += 1
+
+        if not self.render_converged():
+            require_redraw = True
+
+        if self.rendered_epoch < self.epoch:
+            require_redraw = True
 
         # present
         gpu.state.blend_set('ALPHA_PREMULT')
@@ -672,9 +703,11 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         self.unbind_display_space_shader()
         gpu.state.blend_set('NONE')
 
+
         # continue drawing as long as changes happen
         if require_redraw and not self.rendering:
             anariRenderFrame(self.device, frame)
+            self.rendered_epoch = self.epoch
             self.rendering = True
 
         # make blender call us again while we wait in the render to complete
