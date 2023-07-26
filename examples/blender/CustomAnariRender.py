@@ -56,6 +56,7 @@ class ANARISceneProperties(bpy.types.PropertyGroup):
     trace: bpy.props.BoolProperty(name = "trace", default = False)
     accumulation: bpy.props.BoolProperty(name = "accumulation", default = False)
     iterations: bpy.props.IntProperty(name = "iterations", default = 8)
+    sync_meshes: bpy.props.BoolProperty(name = "sync meshes", default = True)
     renderer: bpy.props.EnumProperty(
         items = get_renderer_enum_info,
         name = "Renderer",
@@ -98,6 +99,7 @@ class RENDER_PT_anari_device(RenderButtonsPanel, Panel):
         col.prop(context.scene.anari, 'accumulation')
         if context.scene.anari.accumulation:
             col.prop(context.scene.anari, 'iterations')
+        col.prop(context.scene.anari, 'sync_meshes')
 
 class ANARIRenderEngine(bpy.types.RenderEngine):
     # These three members are used by blender to set up the
@@ -199,9 +201,9 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
     def render_converged(self):
         threshold = 1
         if bpy.context.scene.anari.accumulation:
-            threshold = bpy.context.scene.anari.iterations 
-        
-        return self.iteration >= threshold           
+            threshold = bpy.context.scene.anari.iterations
+
+        return self.iteration >= threshold
 
     def anari_frame(self, width=0, height=0):
         if not self.frame:
@@ -393,7 +395,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
                     pixbuf = (pixbuf*255).astype(np.ubyte)
                 else:
                     atype = [ANARI_FLOAT32, ANARI_FLOAT32_VEC2, ANARI_FLOAT32_VEC3, ANARI_FLOAT32_VEC4][image.channels-1]
-                
+
                 pixels = anariNewArray2D(self.device, ffi.from_buffer(pixbuf), atype, image.size[0], image.size[1])
                 self.images[image.name] = pixels
                 return pixels
@@ -448,7 +450,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
                     if filterMode:
                         anariSetParameter(self.device, sampler, 'filter', ANARI_STRING, filterMode)
 
-                        
+
                     anariCommitParameters(self.device, sampler)
                     anariSetParameter(self.device, material, paramname, ANARI_SAMPLER, sampler)
                     return
@@ -493,15 +495,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
             return self.default_material
 
 
-    def read_scene(self, depsgraph):
-        global current_renderer
-        if self.current_renderer != current_renderer:
-            self.renderer = anariNewRenderer(self.device, get_current_renderer_name())
-
-        bg_color = depsgraph.scene.world.color[:]+(1.0,)
-        anariSetParameter(self.device, self.renderer, 'background', ANARI_FLOAT32_VEC4, bg_color)
-        anariCommitParameters(self.device, self.renderer)
-
+    def read_meshes(self, depsgraph):
         scene_instances = []
 
         for obj in depsgraph.objects:
@@ -523,8 +517,6 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
                 val = np.array(corner[:])
                 self.bounds_min = np.minimum(self.bounds_min, val)
                 self.bounds_max = np.maximum(self.bounds_max, val)
-
-
 
             (mesh, material, surface, group, instance) = self.mesh_to_geometry(objmesh, name)
 
@@ -550,8 +542,12 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         for i, instance in enumerate(scene_instances):
             ptr[i] = instance
         anariUnmapParameterArray(self.device, self.world, 'instance')
+        anariCommitParameters(self.device, self.world)
 
+
+    def read_lights(self, depsgraph):
         scene_lights = []
+
         for key, obj in depsgraph.objects.items():
             if obj.hide_render or obj.type != 'LIGHT':
                 continue
@@ -583,8 +579,21 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         for i, light in enumerate(scene_lights):
             ptr[i] = light
         anariUnmapParameterArray(self.device, self.world, 'light')
-
         anariCommitParameters(self.device, self.world)
+
+
+    def read_scene(self, depsgraph):
+        global current_renderer
+        if self.current_renderer != current_renderer:
+            self.renderer = anariNewRenderer(self.device, get_current_renderer_name())
+
+        bg_color = depsgraph.scene.world.color[:]+(1.0,)
+        anariSetParameter(self.device, self.renderer, 'background', ANARI_FLOAT32_VEC4, bg_color)
+        anariCommitParameters(self.device, self.renderer)
+
+        if bpy.context.scene.anari.sync_meshes:
+            self.read_meshes(depsgraph)
+        self.read_lights(depsgraph)
 
 
     # This is the method called by Blender for both final renders (F12) and
