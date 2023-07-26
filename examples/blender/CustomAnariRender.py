@@ -57,6 +57,9 @@ class ANARISceneProperties(bpy.types.PropertyGroup):
     accumulation: bpy.props.BoolProperty(name = "accumulation", default = False)
     iterations: bpy.props.IntProperty(name = "iterations", default = 8)
     sync_meshes: bpy.props.BoolProperty(name = "sync meshes", default = True)
+    sync_lights: bpy.props.BoolProperty(name = "sync lights", default = True)
+    ambient_radiance: bpy.props.FloatProperty(name = "ambient intensity", default = 1.0, min = 0.0)
+    ambient_color: bpy.props.FloatVectorProperty(name = "ambient color", default = (1.0, 1.0, 1.0), subtype = 'COLOR')
     renderer: bpy.props.EnumProperty(
         items = get_renderer_enum_info,
         name = "Renderer",
@@ -100,6 +103,9 @@ class RENDER_PT_anari_device(RenderButtonsPanel, Panel):
         if context.scene.anari.accumulation:
             col.prop(context.scene.anari, 'iterations')
         col.prop(context.scene.anari, 'sync_meshes')
+        col.prop(context.scene.anari, 'sync_lights')
+        col.prop(context.scene.anari, 'ambient_radiance')
+        col.prop(context.scene.anari, 'ambient_color')
 
 class ANARIRenderEngine(bpy.types.RenderEngine):
     # These three members are used by blender to set up the
@@ -589,11 +595,17 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
         bg_color = depsgraph.scene.world.color[:]+(1.0,)
         anariSetParameter(self.device, self.renderer, 'background', ANARI_FLOAT32_VEC4, bg_color)
+        aRadiance = bpy.context.scene.anari.ambient_radiance
+        anariSetParameter(self.device, self.renderer, 'ambientRadiance', ANARI_FLOAT32, aRadiance)
+        aColor = bpy.context.scene.anari.ambient_color
+        aColor = (aColor.r, aColor.g, aColor.b)
+        anariSetParameter(self.device, self.renderer, 'ambientColor', ANARI_FLOAT32_VEC3, aColor)
         anariCommitParameters(self.device, self.renderer)
 
         if bpy.context.scene.anari.sync_meshes:
             self.read_meshes(depsgraph)
-        self.read_lights(depsgraph)
+        if bpy.context.scene.anari.sync_lights:
+            self.read_lights(depsgraph)
 
 
     # This is the method called by Blender for both final renders (F12) and
