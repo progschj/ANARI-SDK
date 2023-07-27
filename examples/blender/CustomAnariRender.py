@@ -136,15 +136,17 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         self.device = anariNewDevice(self.library, devicename)
         anariCommitParameters(self.device, self.device)
 
+        features = anariGetDeviceFeatures(self.library, "default")
+
         rendererNames = anariGetObjectSubtypes(self.device, ANARI_RENDERER)
+
+        rendererParameters = anariGetObjectInfo(self.device, ANARI_RENDERER, "default", "parameter", ANARI_PARAMETER_LIST)
+        print(rendererParameters)
 
         newRendererList = []
 
-        i = 0
-        while rendererNames[i] != ffi.NULL:
-            name = str(ffi.string(rendererNames[i]), 'utf-8')
+        for name in rendererNames:
             newRendererList.append((name, name, name))
-            i += 1
 
         if len(newRendererList) > 1 and newRendererList[0][0] == "default":
             newRendererList.pop(0)
@@ -431,14 +433,13 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
                     sampler = self.sampler_handle(material, paramname)
                     anariSetParameter(self.device, sampler, 'image', ANARI_ARRAY2D, pixels)
                     anariSetParameter(self.device, sampler, 'inAttribute', ANARI_STRING, "attribute0")
-                    if link.from_socket.name == "Color" and image.alpha_mode == 'STRAIGHT':
-                        anariSetParameter(self.device, sampler, 'outTransform', ANARI_FLOAT32_MAT4, [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0])
-                        anariSetParameter(self.device, sampler, 'outOffset', ANARI_FLOAT32_VEC4, [0,0,0,1])
-                        anariSetParameter(self.device, material, 'alphaMode', ANARI_STRING, 'mask')
-                        anariSetParameter(self.device, material, 'alphaCutoff', ANARI_FLOAT32, 0.001)
-                    elif link.from_socket.name == "Alpha":
+                    if link.from_socket.name == "Alpha":
                         #swizzle alpha into first position
                         anariSetParameter(self.device, sampler, 'outTransform', ANARI_FLOAT32_MAT4, [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0])
+                    elif link.from_socket.name == "Color":
+                        #make sure we don't accidentally side channel alpha
+                        anariSetParameter(self.device, sampler, 'outTransform', ANARI_FLOAT32_MAT4, [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0])
+                        anariSetParameter(self.device, sampler, 'outOffset', ANARI_FLOAT32_VEC4, [0,0,0,1])
 
                     repeatMode = None
                     if node.extension == 'REPEAT':
@@ -496,6 +497,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         if shader.type == 'BSDF_PRINCIPLED':
             material = anariNewMaterial(self.device, 'physicallyBased')
             self.parse_source_node(material, 'baseColor', ANARI_FLOAT32_VEC3, shader.inputs['Base Color'])
+            anariSetParameter(self.device, material, "alphaMode", ANARI_STRING, "blend")
             self.parse_source_node(material, 'opacity', ANARI_FLOAT32, shader.inputs['Alpha'])
             self.parse_source_node(material, 'metallic', ANARI_FLOAT32, shader.inputs['Metallic'])
             self.parse_source_node(material, 'roughness', ANARI_FLOAT32, shader.inputs['Roughness'])
