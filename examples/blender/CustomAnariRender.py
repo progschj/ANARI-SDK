@@ -30,6 +30,7 @@ prefixes = {
 
 renderer_enum_info = [("default", "default", "default")]
 current_renderer = 0
+anari_in_use = 0
 
 def anari_status(device, source, sourceType, severity, code, message):
     print('[%s]: '%prefixes[severity]+message)
@@ -58,15 +59,16 @@ class ANARISceneProperties(bpy.types.PropertyGroup):
     device: bpy.props.StringProperty(name = "device", default = "default")
     debug: bpy.props.BoolProperty(name = "debug", default = False)
     trace: bpy.props.BoolProperty(name = "trace", default = False)
-    accumulation: bpy.props.BoolProperty(name = "accumulation", default = False)
-    iterations: bpy.props.IntProperty(name = "iterations", default = 8)
     sync_meshes: bpy.props.BoolProperty(name = "sync meshes", default = True)
     sync_lights: bpy.props.BoolProperty(name = "sync lights", default = True)
+
+    accumulation: bpy.props.BoolProperty(name = "accumulation", default = False)
+    iterations: bpy.props.IntProperty(name = "iterations", default = 8)
     ambient_radiance: bpy.props.FloatProperty(name = "ambient intensity", default = 1.0, min = 0.0)
     ambient_color: bpy.props.FloatVectorProperty(name = "ambient color", default = (1.0, 1.0, 1.0), subtype = 'COLOR')
     renderer: bpy.props.EnumProperty(
         items = get_renderer_enum_info,
-        name = "Renderer",
+        name = "subtype",
         default = None,
         set = set_current_renderer,
         get = get_current_renderer
@@ -84,8 +86,49 @@ class ANARISceneProperties(bpy.types.PropertyGroup):
     def unregister(cls):
         del bpy.types.Scene.anari
 
-class RENDER_PT_anari_device(RenderButtonsPanel, Panel):
+class RENDER_PT_anari(RenderButtonsPanel, Panel):
     bl_label = "ANARI Device"
+    COMPAT_ENGINES = {'ANARI'}
+
+    @classmethod
+    def poll(cls, context):
+        return (context.engine in cls.COMPAT_ENGINES)
+
+    def draw(self, context):
+        pass
+
+
+class RENDER_PT_anari_device(RenderButtonsPanel, Panel):
+    bl_label = "Device"
+    bl_parent_id = "RENDER_PT_anari"
+    COMPAT_ENGINES = {'ANARI'}
+
+    @classmethod
+    def poll(cls, context):
+        return (context.engine in cls.COMPAT_ENGINES)
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+
+        global anari_in_use
+        col = layout.column()
+        col.enabled = anari_in_use == 0
+        col.prop(context.scene.anari, 'library')
+        col.prop(context.scene.anari, 'device')
+        col.prop(context.scene.anari, 'debug')
+        if context.scene.anari.debug:
+            col.prop(context.scene.anari, 'trace')
+
+        col = layout.column()
+        col.prop(context.scene.anari, 'sync_meshes')
+        col.prop(context.scene.anari, 'sync_lights')
+
+
+class RENDER_PT_anari_renderer(RenderButtonsPanel, Panel):
+    bl_label = "Renderer"
+    bl_parent_id = "RENDER_PT_anari"
     COMPAT_ENGINES = {'ANARI'}
 
     @classmethod
@@ -98,19 +141,17 @@ class RENDER_PT_anari_device(RenderButtonsPanel, Panel):
         layout.use_property_decorate = False
 
         col = layout.column()
-        col.prop(context.scene.anari, 'library')
-        col.prop(context.scene.anari, 'device')
-        col.prop(context.scene.anari, 'debug')
-        if context.scene.anari.debug:
-            col.prop(context.scene.anari, 'trace')
         col.prop(context.scene.anari, 'renderer')
         col.prop(context.scene.anari, 'accumulation')
-        if context.scene.anari.accumulation:
-            col.prop(context.scene.anari, 'iterations')
-        col.prop(context.scene.anari, 'sync_meshes')
-        col.prop(context.scene.anari, 'sync_lights')
+
+        col = layout.column()
+        col.enabled = context.scene.anari.accumulation
+        col.prop(context.scene.anari, 'iterations')
+
+        col = layout.column()
         col.prop(context.scene.anari, 'ambient_radiance')
         col.prop(context.scene.anari, 'ambient_color')
+
 
 class ANARIRenderEngine(bpy.types.RenderEngine):
     # These three members are used by blender to set up the
@@ -132,6 +173,9 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
         libraryname = bpy.context.scene.anari.library
         devicename = bpy.context.scene.anari.device
+
+        global anari_in_use
+        anari_in_use = anari_in_use + 1
 
         self.library = anariLoadLibrary(libraryname, status_handle)
         if not self.library:
@@ -204,7 +248,8 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
     # When the render engine instance is destroyed, this is called. Clean up any
     # render engine data here, for example stopping running render threads.
     def __del__(self):
-        pass
+        global anari_in_use
+        anari_in_use = anari_in_use - 1
 
     def scene_changed(self):
         self.scene_updated = True
@@ -750,7 +795,9 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 classes = [
     ANARISceneProperties,
     ANARIRenderEngine,
+    RENDER_PT_anari,
     RENDER_PT_anari_device,
+    RENDER_PT_anari_renderer,
 ]
 
 # RenderEngines also need to tell UI Panels that they are compatible with.
