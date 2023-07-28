@@ -42,6 +42,10 @@ def set_current_renderer(self, value):
     global current_renderer
     current_renderer = value
 
+def get_current_renderer(self):
+    global current_renderer
+    return current_renderer
+
 def get_current_renderer_name():
     global current_renderer
     global renderer_enum_info
@@ -64,7 +68,8 @@ class ANARISceneProperties(bpy.types.PropertyGroup):
         items = get_renderer_enum_info,
         name = "Renderer",
         default = None,
-        set = set_current_renderer
+        set = set_current_renderer,
+        get = get_current_renderer
     )
 
     @classmethod
