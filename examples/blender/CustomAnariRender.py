@@ -431,7 +431,12 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
                     sampler = self.sampler_handle(material, paramname)
                     anariSetParameter(self.device, sampler, 'image', ANARI_ARRAY2D, pixels)
                     anariSetParameter(self.device, sampler, 'inAttribute', ANARI_STRING, "attribute0")
-                    if link.from_socket.name == "Alpha":
+                    if link.from_socket.name == "Color" and image.alpha_mode == 'STRAIGHT':
+                        anariSetParameter(self.device, sampler, 'outTransform', ANARI_FLOAT32_MAT4, [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0])
+                        anariSetParameter(self.device, sampler, 'outOffset', ANARI_FLOAT32_VEC4, [0,0,0,1])
+                        anariSetParameter(self.device, material, 'alphaMode', ANARI_STRING, 'mask')
+                        anariSetParameter(self.device, material, 'alphaCutoff', ANARI_FLOAT32, 0.001)
+                    elif link.from_socket.name == "Alpha":
                         #swizzle alpha into first position
                         anariSetParameter(self.device, sampler, 'outTransform', ANARI_FLOAT32_MAT4, [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0])
 
@@ -491,7 +496,6 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         if shader.type == 'BSDF_PRINCIPLED':
             material = anariNewMaterial(self.device, 'physicallyBased')
             self.parse_source_node(material, 'baseColor', ANARI_FLOAT32_VEC3, shader.inputs['Base Color'])
-            anariSetParameter(self.device, material, "alphaMode", ANARI_STRING, "opaque")
             self.parse_source_node(material, 'opacity', ANARI_FLOAT32, shader.inputs['Alpha'])
             self.parse_source_node(material, 'metallic', ANARI_FLOAT32, shader.inputs['Metallic'])
             self.parse_source_node(material, 'roughness', ANARI_FLOAT32, shader.inputs['Roughness'])
