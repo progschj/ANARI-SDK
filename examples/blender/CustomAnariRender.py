@@ -842,16 +842,34 @@ classes = [
 
 # RenderEngines also need to tell UI Panels that they are compatible with.
 def get_panels():
-    include_panels = {
-        'RENDER_PT_anari',
-        'RENDER_PT_anari_device',
-        'RENDER_PT_anari_renderer',
+    exclude_panels = {
+        'VIEWLAYER_PT_filter',
+        'VIEWLAYER_PT_layer_passes',
+        'RENDER_PT_eevee_ambient_occlusion',
+        'RENDER_PT_eevee_motion_blur',
+        'RENDER_PT_eevee_next_motion_blur',
+        'RENDER_PT_motion_blur_curve',
+        'RENDER_PT_eevee_depth_of_field',
+        'RENDER_PT_eevee_next_depth_of_field',
+        'RENDER_PT_eevee_bloom',
+        'RENDER_PT_eevee_volumetric',
+        'RENDER_PT_eevee_volumetric_lighting',
+        'RENDER_PT_eevee_volumetric_shadows',
+        'RENDER_PT_eevee_subsurface_scattering',
+        'RENDER_PT_eevee_screen_space_reflections',
+        'RENDER_PT_eevee_shadows',
+        'RENDER_PT_eevee_next_shadows',
+        'RENDER_PT_eevee_sampling',
+        'RENDER_PT_eevee_indirect_lighting',
+        'RENDER_PT_eevee_indirect_lighting_display',
+        'RENDER_PT_eevee_film',
+        'RENDER_PT_eevee_hair',
+        'RENDER_PT_eevee_performance',
     }
-
     panels = []
     for panel in bpy.types.Panel.__subclasses__():
         if hasattr(panel, 'COMPAT_ENGINES') and ('BLENDER_RENDER' in panel.COMPAT_ENGINES or 'BLENDER_EEVEE' in panel.COMPAT_ENGINES):
-            if panel.__name__  in include_panels:
+            if panel.__name__ not in exclude_panels:
                 panels.append(panel)
 
     return panels
