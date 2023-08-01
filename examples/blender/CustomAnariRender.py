@@ -396,9 +396,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
         anariUnmapParameterArray(self.device, obj, name)
 
 
-    def mesh_to_geometry(self, objmesh, name):
-        (mesh, material, surface, group, instance) = self.get_mesh(name)
-
+    def mesh_to_geometry(self, objmesh, name, mesh):
         objmesh.calc_loop_triangles()
         objmesh.calc_normals_split()
 
@@ -460,7 +458,7 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
         anariCommitParameters(self.device, mesh)
 
-        return (mesh, material, surface, group, instance)
+        return mesh
 
     def image_handle(self, image):
         if image.name in self.images:
@@ -582,45 +580,63 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
 
     def read_meshes(self, depsgraph):
-        scene_instances = []
 
-        for obj in depsgraph.objects:
-            objmesh = None
+        for update in depsgraph.updates:
+            obj = update.id
+            name = obj.name
+
             if obj.type in {'MESH', 'CURVE', 'SURFACE', 'FONT', 'META'}:
                 objmesh = obj.to_mesh()
             else:
                 continue
 
+            (mesh, material, surface, group, instance) = self.get_mesh(name)
+
+            if update.is_updated_geometry:
+                self.mesh_to_geometry(objmesh, name, mesh)
+
+            if update.is_updated_shading:
+                if obj.material_slots:
+                    material = self.parse_material(obj.material_slots[0].material)
+                    self.meshes[name] = (mesh, material, surface, group, instance)
+            
+            if update.is_updated_transform:
+                transform = [x for v in obj.matrix_world.transposed() for x in v]
+                anariSetParameter(self.device, instance, 'transform', ANARI_FLOAT32_MAT4, transform)
+                anariCommitParameters(self.device, instance)
+
+        self.bounds_min = np.array([1.e20, 1.e20, 1.e20])
+        self.bounds_max = np.array([-1.e20, -1.e20, -1.e20])
+
+
+        scene_instances = []
+        for obj in depsgraph.objects:
             name = obj.name
 
-            #if name in self.meshes:
-            #    continue
+            if name not in self.meshes:
+                if obj.type in {'MESH', 'CURVE', 'SURFACE', 'FONT', 'META'}:
+                    objmesh = obj.to_mesh()
+                else:
+                    continue
 
-            self.bounds_min = np.array([1.e20, 1.e20, 1.e20])
-            self.bounds_max = np.array([-1.e20, -1.e20, -1.e20])
+                (mesh, material, surface, group, instance) = self.get_mesh(name)
+                self.mesh_to_geometry(objmesh, name, mesh)
+
+                if obj.material_slots:
+                    material = self.parse_material(obj.material_slots[0].material)
+                    self.meshes[name] = (mesh, material, surface, group, instance)
+            
+                transform = [x for v in obj.matrix_world.transposed() for x in v]
+                anariSetParameter(self.device, instance, 'transform', ANARI_FLOAT32_MAT4, transform)
+                anariCommitParameters(self.device, instance)
+
             for v in obj.bound_box[:]:
                 corner = obj.matrix_world@Vector(v)
                 val = np.array(corner[:])
                 self.bounds_min = np.minimum(self.bounds_min, val)
                 self.bounds_max = np.maximum(self.bounds_max, val)
 
-            (mesh, material, surface, group, instance) = self.mesh_to_geometry(objmesh, name)
-
-            objmaterial = self.default_material
-            if obj.material_slots:
-                objmaterial = self.parse_material(obj.material_slots[0].material)
-
-            if objmaterial != material:
-                material = objmaterial
-                anariSetParameter(self.device, surface, 'material', ANARI_MATERIAL, material)
-                anariCommitParameters(self.device, surface)
-                self.meshes[name] = (mesh, material, surface, group, instance)
-
-
-            #flatten the matrix
-            transform = [x for v in obj.matrix_world.transposed() for x in v]
-            anariSetParameter(self.device, instance, 'transform', ANARI_FLOAT32_MAT4, transform)
-            anariCommitParameters(self.device, instance)
+            (mesh, material, surface, group, instance) = self.get_mesh(name)
 
             scene_instances.append(instance)
 
