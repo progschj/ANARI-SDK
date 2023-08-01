@@ -390,55 +390,77 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
             return light
 
 
+    def set_array(self, obj, name, atype, count, arr):
+        (ptr, stride) = anariMapParameterArray1D(self.device, obj, name, atype, count)
+        ffi.memmove(ptr, ffi.from_buffer(arr), arr.size*arr.itemsize)
+        anariUnmapParameterArray(self.device, obj, name)
+
+
     def mesh_to_geometry(self, objmesh, name):
+        (mesh, material, surface, group, instance) = self.get_mesh(name)
+
         objmesh.calc_loop_triangles()
         objmesh.calc_normals_split()
 
-        #flatten to triangle soup
-        flat_vertices = []
-        flat_normals = []
-        flat_uvs = []
-        flat_colors = []
-        for i, tri in enumerate(objmesh.loop_triangles):
-            for j in range(0, 3):
-                idx = tri.vertices[j]
-                loop = tri.loops[j]
-                flat_vertices += objmesh.vertices[idx].co[:]
-                flat_normals += objmesh.loops[loop].normal[:]
-                if objmesh.uv_layers.active:
-                    flat_uvs += objmesh.uv_layers.active.uv[loop].vector[:]
-                if objmesh.color_attributes:
-                    flat_colors += objmesh.color_attributes[0].data[loop].color[:]
+        indexcount = len(objmesh.loop_triangles)
+        npindex = np.zeros([indexcount*3], dtype=np.uint32)
+        objmesh.loop_triangles.foreach_get('vertices', npindex)
 
-        vertices = np.array(flat_vertices, dtype=np.float32)
-        normals = np.array(flat_normals, dtype=np.float32)
-        uvs = np.array(flat_uvs, dtype=np.float32)
-        colors = np.array(flat_colors, dtype=np.float32)
+        loopindexcount = len(objmesh.loop_triangles)
+        nploopindex = np.zeros([loopindexcount*3], dtype=np.uint32)
+        objmesh.loop_triangles.foreach_get('loops', nploopindex)
 
-        (mesh, material, surface, group, instance) = self.get_mesh(name)
+        flatten = not np.array_equal(npindex, nploopindex)
 
-        (ptr, stride) = anariMapParameterArray1D(self.device, mesh, 'vertex.position', ANARI_FLOAT32_VEC3, vertices.size//3)
-        ffi.memmove(ptr, ffi.from_buffer(vertices), 4*vertices.size)
-        anariUnmapParameterArray(self.device, mesh, 'vertex.position')
+        if not flatten:
+            self.set_array(mesh, 'primitive.index', ANARI_UINT32_VEC3, indexcount, npindex)
 
-        (ptr, stride) = anariMapParameterArray1D(self.device, mesh, 'vertex.normal', ANARI_FLOAT32_VEC3, normals.size//3)
-        ffi.memmove(ptr, ffi.from_buffer(normals), 4*normals.size)
-        anariUnmapParameterArray(self.device, mesh, 'vertex.normal')
+        vertexcount = len(objmesh.vertices)
+        npvert = np.zeros([vertexcount*3], dtype=np.float32)
+        objmesh.vertices.foreach_get('co', npvert)
+        if flatten:
+            npvert = npvert.reshape((vertexcount, 3))
+            npvert = npvert[npindex]
+            vertexcount = 3*indexcount
+        
+        self.set_array(mesh, 'vertex.position', ANARI_FLOAT32_VEC3, vertexcount, npvert)
 
-        if flat_uvs:
-            (ptr, stride) = anariMapParameterArray1D(self.device, mesh, 'vertex.attribute0', ANARI_FLOAT32_VEC2, uvs.size//2)
-            ffi.memmove(ptr, ffi.from_buffer(uvs), 4*uvs.size)
-            anariUnmapParameterArray(self.device, mesh, 'vertex.attribute0')
+        normalcount = len(objmesh.loops)
+        npnormal = np.zeros([normalcount*3], dtype=np.float32)
+        objmesh.loops.foreach_get('normal', npnormal)
+        if flatten:
+            npnormal = npnormal.reshape((normalcount, 3))
+            npnormal = npnormal[nploopindex]
+            normalcount = 3*loopindexcount
+            
+        self.set_array(mesh, 'vertex.normal', ANARI_FLOAT32_VEC3, normalcount, npnormal)
 
-        if flat_colors:
-            (ptr, stride) = anariMapParameterArray1D(self.device, mesh, 'vertex.color', ANARI_FLOAT32_VEC4, colors.size//4)
-            ffi.memmove(ptr, ffi.from_buffer(colors), 4*colors.size)
-            anariUnmapParameterArray(self.device, mesh, 'vertex.color')
+        if objmesh.uv_layers.active:
+            uvcount = len(objmesh.uv_layers.active.uv)
+            npuv = np.zeros([uvcount*2], dtype=np.float32)
+            objmesh.uv_layers.active.uv.foreach_get('vector', npuv)
+            if flatten:
+                npuv = npuv.reshape((uvcount, 2))
+                npuv = npuv[nploopindex]
+                uvcount = 3*loopindexcount
+
+            self.set_array(mesh, 'vertex.attribute0', ANARI_FLOAT32_VEC2, uvcount, npuv)
+
+
+        if objmesh.color_attributes:
+            colorcount = len(objmesh.color_attributes[0].data)
+            npcolor = np.zeros([colorcount*4], dtype=np.float32)
+            objmesh.color_attributes[0].data.foreach_get('color', npcolor)
+            if flatten:
+                npcolor = npcolor.reshape((colorcount, 4))
+                npcolor = npcolor[nploopindex]
+                colorcount = 3*loopindexcount
+
+            self.set_array(mesh, 'vertex.color', ANARI_FLOAT32_VEC4, colorcount, npcolor)
 
         anariCommitParameters(self.device, mesh)
 
         return (mesh, material, surface, group, instance)
-
 
     def image_handle(self, image):
         if image.name in self.images:
@@ -447,7 +469,9 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
             image.update()
             if image.has_data:
                 atype = None
-                pixbuf = np.array(image.pixels, dtype=np.float32)
+                #pixbuf = np.array(image.pixels, dtype=np.float32)
+                pixbuf = np.empty((len(image.pixels)), dtype=np.float32)
+                image.pixels.foreach_get(pixbuf)
                 if image.depth//image.channels <= 8:
                     atype = [ANARI_UFIXED8, ANARI_UFIXED8_VEC2, ANARI_UFIXED8_VEC3, ANARI_UFIXED8_VEC4][image.channels-1]
                     pixbuf = (pixbuf*255).astype(np.ubyte)
