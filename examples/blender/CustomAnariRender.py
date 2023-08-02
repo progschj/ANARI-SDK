@@ -585,22 +585,28 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
             obj = update.id
             name = obj.name
 
-            if obj.type in {'MESH', 'CURVE', 'SURFACE', 'FONT', 'META'}:
+            if isinstance(obj, bpy.types.Scene):
+                continue
+            elif obj.type in {'MESH', 'CURVE', 'SURFACE', 'FONT', 'META'}:
                 objmesh = obj.to_mesh()
             else:
                 continue
 
+            is_new = name not in self.meshes
+
             (mesh, material, surface, group, instance) = self.get_mesh(name)
 
-            if update.is_updated_geometry:
+            if is_new or update.is_updated_geometry:
                 self.mesh_to_geometry(objmesh, name, mesh)
 
-            if update.is_updated_shading:
+            if is_new or update.is_updated_shading:
                 if obj.material_slots:
                     material = self.parse_material(obj.material_slots[0].material)
+                    anariSetParameter(self.device, surface, 'material', ANARI_MATERIAL, material)
+                    anariCommitParameters(self.device, surface)
                     self.meshes[name] = (mesh, material, surface, group, instance)
             
-            if update.is_updated_transform:
+            if is_new or update.is_updated_transform:
                 transform = [x for v in obj.matrix_world.transposed() for x in v]
                 anariSetParameter(self.device, instance, 'transform', ANARI_FLOAT32_MAT4, transform)
                 anariCommitParameters(self.device, instance)
