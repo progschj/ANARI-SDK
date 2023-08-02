@@ -630,6 +630,8 @@ class ANARIRenderEngine(bpy.types.RenderEngine):
 
                 if obj.material_slots:
                     material = self.parse_material(obj.material_slots[0].material)
+                    anariSetParameter(self.device, surface, 'material', ANARI_MATERIAL, material)
+                    anariCommitParameters(self.device, surface)
                     self.meshes[name] = (mesh, material, surface, group, instance)
             
                 transform = [x for v in obj.matrix_world.transposed() for x in v]
